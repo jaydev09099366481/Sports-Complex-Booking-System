@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sports Complex Booking System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+    --dark: #205072;
+    --teal: #329D9C;
+    --green: #56C596;
+    --light-green: #7BE495;
+    --mint: #CFF4D2;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: linear-gradient(135deg, var(--mint), #ffffff);
+}
+
+/* ================= NAVBAR (UNCHANGED) ================= */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 60px;
+    background: var(--dark);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo { font-size: 20px; font-weight: 700; }
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.nav-links a:hover {
+    color: var(--light-green);
+}
+
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* PROFILE IMAGE BUTTON */
+.profile-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid var(--light-green);
+    transition: 0.3s;
+}
+
+.profile-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-btn:hover {
+    transform: scale(1.05);
+}
+
+/* DROPDOWN (CONNECTED STYLE) */
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 42px; /* connects directly to avatar */
+    background: white;
+    min-width: 180px;
+    border-radius: 0 0 10px 10px; /* top removed for connected look */
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+}
+
+/* MENU ITEMS */
+.dropdown-menu a {
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--dark);
+    font-size: 14px;
+    transition: 0.2s;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+    background: #f5f5f5;
+}
+
+/* logout highlight */
+.dropdown-menu .logout {
+    color: red;
+}
+
+/* SHOW ON HOVER */
+.profile-dropdown:hover .dropdown-menu {
+    display: flex;
+}
+
+.btn {
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.btn-login {
+    border: 1px solid var(--light-green);
+    color: var(--light-green);
+}
+
+.btn-login:hover {
+    background: var(--light-green);
+    color: var(--dark);
+}
+
+.btn-signup {
+    background: var(--green);
+    color: white;
+}
+
+
+/* ================= HERO CAROUSEL ================= */
+.hero {
+    height: 90vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* slides */
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* dark overlay */
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1;
+}
+
+/* overlay text */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 800px;
+    padding: 20px;
+}
+
+.hero-title {
+    font-size: 52px;
+    font-weight: 700;
+}
+
+.hero-subtitle {
+    margin-top: 15px;
+    font-size: 18px;
+    opacity: 0.95;
+}
+
+/* IMPROVED BUTTON */
+.hero-btn {
+    margin-top: 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 30px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--teal), var(--green));
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.hero-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+}
+
+/* ================= DOTS ================= */
+.dots {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 3;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* ================= SECTIONS (UNCHANGED EXACTLY) ================= */
+section {
+    padding: 80px 60px;
+}
+
+/* ABOUT */
+.about {
+    text-align: center;
+}
+
+.about h2 {
+    font-size: 32px;
+    color: var(--dark);
+    margin-bottom: 20px;
+}
+
+.about p {
+    max-width: 800px;
+    margin: auto;
+    color: #444;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* PRICING */
+.pricing {
+    text-align: center;
+}
+
+.pricing h2 {
+    font-size: 32px;
+    color: var(--dark);
+    margin-bottom: 30px;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.price-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.price-card h3 {
+    color: var(--teal);
+}
+
+.price {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--dark);
+}
+
+/* CONTACT */
+.contact {
+    text-align: center;
+}
+
+.contact h2 {
+    font-size: 32px;
+    color: var(--dark);
+}
+
+.contact-box {
+    max-width: 500px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-box input,
+.contact-box textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.contact-box button {
+    background: var(--teal);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+}
+
+/* FOOTER */
+.footer {
+    background: var(--dark);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .hero-title { font-size: 32px; }
+    .navbar { flex-direction: column; gap: 10px; }
+}
+</style>
+</head>
+
+<script>
+window.addEventListener("load", function () {
+    if (window.location.hash) {
+        const element = document.querySelector(window.location.hash);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+});
+</script>
+
+<script>
+function sendInquiry() {
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let message = document.getElementById("message").value;
+
+    // VALIDATION
+    if (!name || !email || !message) {
+        Swal.fire("Error", "All fields are required!", "error");
+        return;
+    }
+
+    fetch("/contact", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: name,
+            email: email,
+            message: message
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire("Success", "Inquiry sent successfully!", "success");
+
+            document.getElementById("name").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("message").value = "";
+        } else {
+            Swal.fire("Error", data.message, "error");
+        }
+    })
+    .catch(() => {
+        Swal.fire("Error", "Server error occurred!", "error");
+    });
+}
+</script>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo"><i class="fas fa-dumbbell"></i> Sports Complex</div>
+
+<div class="nav-links">
+    <a href="{{ url_for('index') }}#home">Home</a>
+    <a href="{{ url_for('index') }}#about">About</a>
+    <a href="{{ url_for('index') }}#pricing">Pricing</a>
+    <a href="{{ url_for('index') }}#contact">Contact</a>
+    <a href="{{ url_for('index') }}#facilities"> Facilities</a>
+</div>
+
+<div class="auth-buttons">
+
+    {% if not user %}
+        <a href="{{ url_for('login') }}" class="btn btn-login">Login</a>
+        <a href="{{ url_for('login') }}?form=signup" class="btn btn-signup">Sign Up</a>
+
+    {% else %}
+
+    <div class="profile-dropdown">
+        <div class="profile-btn">
+            <img src="https://ui-avatars.com/api/?name={{ user }}&background=329D9C&color=fff&rounded=true"
+                 alt="profile">
+        </div>
+
+        <div class="dropdown-menu">
+            <a href="#">Reservations</a>
+            <a href="#">Profile</a>
+            <a href="#">Notifications</a>
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>
+
+</div>
+
+<!-- HERO -->
+<section id="home" class="hero">
+
+    <!-- SLIDES -->
+    <div class="slide active" data-title="Play Like a Champion" data-text="Book courts instantly and elevate your game experience.">
+        <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d">
+    </div>
+
+    <div class="slide" data-title="Real-Time Availability" data-text="Check schedules instantly and secure your slot.">
+        <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b">
+    </div>
+
+    <div class="slide" data-title="Train. Compete. Win." data-text="Join tournaments and manage bookings easily.">
+        <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5">
+    </div>
+
+    <!-- TEXT -->
+    <div class="hero-content">
+        <div class="hero-title" id="heroTitle"></div>
+        <div class="hero-subtitle" id="heroText"></div>
+
+        <a href="{{ url_for('dashboard') }}" class="hero-btn">
+            <i></i> Book Now
+        </a>
+    </div>
+
+    <!-- DOTS -->
+    <div class="dots" id="dots"></div>
+
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="about">
+    <h2>About Us</h2>
+    <p>
+        Our Sports Complex Booking System is a modern and efficient platform designed to make reserving sports facilities fast, easy, and hassle-free for everyone. It allows users to book courts, training areas, and sports venues in real time with accurate availability updates, helping eliminate scheduling conflicts and long waiting times. Whether you are a casual player, a sports enthusiast, or part of a competitive team, our system provides a smooth and reliable booking experience that saves time and improves convenience. Our goal is to promote better access to sports facilities through a simple, organized, and user-friendly digital solution.
+    </p>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="pricing">
+    <h2>Pricing Plans</h2>
+
+    <div class="pricing-grid">
+        <div class="price-card"><h3>Basic</h3><div class="price">₱100/hr</div></div>
+        <div class="price-card"><h3>Standard</h3><div class="price">₱200/hr</div></div>
+        <div class="price-card"><h3>Premium</h3><div class="price">₱350/hr</div></div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact">
+    <h2>Contact Us</h2>
+
+    <div class="contact-box">
+
+        <input id="name" placeholder="Your Name">
+        <input id="email" placeholder="Your Email">
+        <textarea id="message" rows="4" placeholder="Message"></textarea>
+
+        <button onclick="sendInquiry()">Send</button>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer">© 2026 Sports Complex Booking System</div>
+
+<!-- SCRIPT -->
+<script>
+let slides = document.querySelectorAll(".slide");
+let title = document.getElementById("heroTitle");
+let text = document.getElementById("heroText");
+let dotsContainer = document.getElementById("dots");
+
+let index = 0;
+
+// create dots
+slides.forEach((_, i) => {
+    let dot = document.createElement("div");
+    dot.classList.add("dot");
+    dot.addEventListener("click", () => {
+        index = i;
+        update();
+    });
+    dotsContainer.appendChild(dot);
+});
+
+let dots = document.querySelectorAll(".dot");
+
+function update() {
+    slides.forEach(s => s.classList.remove("active"));
+    dots.forEach(d => d.classList.remove("active"));
+
+    slides[index].classList.add("active");
+    dots[index].classList.add("active");
+
+    title.textContent = slides[index].dataset.title;
+    text.textContent = slides[index].dataset.text;
+}
+
+function next() {
+    index = (index + 1) % slides.length;
+    update();
+}
+
+// init
+update();
+setInterval(next, 10000);
+</script>
+
+</body>
+</html>

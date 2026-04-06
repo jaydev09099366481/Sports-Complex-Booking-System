@@ -17,41 +17,27 @@
 
 body {
     display: flex;
-    background: #f4f8f7;
+    background: #0f1117;
+    color: #e6f1ff;
 }
 
 /* SIDEBAR */
 .sidebar {
     width: 230px;
     height: 100vh;
-    background: linear-gradient(180deg, #205072, #329D9C);
-    color: #fff;
+    background: linear-gradient(180deg, #0f1117, #0a1f2e, #0c2d3f);
     position: fixed;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+    border-right: 1px solid #1f2a38;
 }
 
 .sidebar-header {
-    background: #205072;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 15px;
+    border-bottom: 1px solid #1f2a38;
+    color: #00e5ff;
 }
 
-.sidebar-header img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-}
-
-.sidebar-header h2 {
-    font-size: 14px;
-}
-
-/* MENU */
 .menu {
     padding: 20px 0;
     flex-grow: 1;
@@ -62,7 +48,7 @@ body {
     align-items: center;
     gap: 12px;
     padding: 10px 20px;
-    color: #eaf6f6;
+    color: #9fb3c8;
     text-decoration: none;
     font-size: 14px;
     transition: 0.3s;
@@ -70,26 +56,16 @@ body {
 
 .menu a:hover,
 .menu a.active {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-    border-radius: 6px;
+    background: rgba(0, 229, 255, 0.15);
+    color: #00e5ff;
+    border-left: 3px solid #00e5ff;
 }
 
 .menu-title {
     padding: 15px 20px 5px;
     font-size: 11px;
-    color: #cfeeee;
+    color: #6b85a6;
     text-transform: uppercase;
-}
-
-/* LOGOUT */
-.logout {
-    padding: 12px 20px;
-    border-top: 1px solid rgba(255,255,255,0.2);
-}
-
-.logout a {
-    color: #ffdddd;
 }
 
 /* MAIN */
@@ -98,19 +74,42 @@ body {
     width: 100%;
 }
 
+/* TOPBAR */
 .topbar {
-    background: #205072;
-    padding: 12px 25px; /* MATCHED HEIGHT */
+    background: #0f1117;
+    padding: 12px 25px;
     display: flex;
     justify-content: space-between;
-    align-items: center; /* keeps content vertically centered */
-    border-bottom: none;
-    height: 56px; /* optional: locks exact height for consistency */
+    align-items: center;
+    border-bottom: 1px solid #1f2a38;
 }
 
 .topbar h3 {
     font-size: 18px;
-    color: #fff;
+    color: #00e5ff;
+}
+
+/* PROFILE MENU */
+#profileMenu {
+    display:none;
+    position:absolute;
+    right:0;
+    top:45px;
+    background:#0f1722;
+    border-radius:8px;
+    border:1px solid #1f2a38;
+    width:150px;
+}
+
+#profileMenu a {
+    display:block;
+    padding:10px;
+    color:#cfe8ff;
+    text-decoration:none;
+}
+
+#profileMenu a:hover {
+    background: rgba(0,229,255,0.1);
 }
 
 /* CONTENT */
@@ -118,22 +117,130 @@ body {
     padding: 25px;
 }
 
+/* TABLE CONTAINER */
+.table-container {
+    background: linear-gradient(145deg, #0f1117, #111827);
+    border: 1px solid #1f2a38;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* HEADER */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.table-header h4 {
+    color: #00e5ff;
+}
+
+/* SEARCH */
+.search-box input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #1f2a38;
+    background: #0a0f1a;
+    color: #e6f1ff;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-box input:focus {
+    border-color: #00e5ff;
+    box-shadow: 0 0 8px rgba(0,229,255,0.3);
+}
+
+.search-box input::placeholder {
+    color: #6b85a6;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #0a1f2e;
+}
+
+th {
+    color: #00e5ff;
+    font-weight: 500;
+}
+
+th, td {
+    padding: 10px;
+    font-size: 13px;
+    text-align: left;
+}
+
+tbody tr {
+    border-top: 1px solid #1f2a38;
+    transition: 0.2s;
+}
+
+tbody tr:hover {
+    background: rgba(0, 229, 255, 0.08);
+}
+
+/* ACTION BUTTON */
+.action-btn {
+    background: linear-gradient(90deg, #00cfff, #00e5ff);
+    border: none;
+    color: #001018;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* ACTION MENU */
+.action-container {
+    position: relative;
+}
+
+.action-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 35px;
+    background: #0f1722;
+    border: 1px solid #1f2a38;
+    border-radius: 8px;
+    width: 130px;
+}
+
+.action-menu button {
+    width: 100%;
+    padding: 8px;
+    background: none;
+    border: none;
+    color: #cfe8ff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.action-menu button:hover {
+    background: rgba(0,229,255,0.1);
+}
+
+.action-menu button.delete {
+    color: #ff6b6b;
+}
 
 /* FOOTER */
 .footer {
     text-align: center;
     padding: 12px;
     font-size: 12px;
-    color: #777;
+    color: #6b85a6;
 }
 
 /* RESPONSIVE */
-@media(max-width: 900px){
-    .cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
 @media(max-width: 600px){
     .sidebar { display: none; }
     .main { margin-left: 0; }
@@ -143,69 +250,34 @@ body {
 
 <body>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
+<!-- SIDEBAR -->
+<div class="sidebar">
 
-        <div class="sidebar-header">
-            <img>
-            <h2>SCBS - Admin</h2>
-        </div>
+    <div class="sidebar-header">
+        <h2>SCBS - Admin</h2>
+    </div>
 
     <div class="menu">
 
-        <a href="{{ url_for('dashboard') }}"
-        class="{% if active_page == 'dashboard' %}active{% endif %}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-
-        <a href="{{ url_for('reservations') }}"
-        class="{% if active_page == 'reservations' %}active{% endif %}">
-            <i class="fas fa-calendar-check"></i> Reservations
-        </a>
+        <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{{ url_for('reservations') }}"><i class="fas fa-calendar-check"></i> Reservations</a>
 
         <div class="menu-title">Management</div>
 
-        <a href="{{ url_for('categories') }}"
-        class="{% if active_page == 'categories' %}active{% endif %}">
-            <i class="fas fa-layer-group"></i> Categories
-        </a>
-
-        <a href="{{ url_for('facilities') }}"
-        class="{% if active_page == 'facilities' %}active{% endif %}">
-            <i class="fas fa-building"></i> Facilities
-        </a>
-
-        <a href="{{ url_for('users') }}"
-        class="{% if active_page == 'users' %}active{% endif %}">
-            <i class="fas fa-users"></i> Users
-        </a>
-
-        <a href="{{ url_for('inquiries') }}"
-        class="{% if active_page == 'inquiries' %}active{% endif %}">
-            <i class="fas fa-envelope"></i> Inquiries
-        </a>
+        <a href="{{ url_for('categories') }}"><i class="fas fa-layer-group"></i> Categories</a>
+        <a href="{{ url_for('facilities') }}"><i class="fas fa-building"></i> Facilities</a>
+        <a href="{{ url_for('users') }}"><i class="fas fa-users"></i> Users</a>
+        <a href="{{ url_for('inquiries') }}" class="active"><i class="fas fa-envelope"></i> Inquiries</a>
 
         <div class="menu-title">Logs</div>
 
-        <a href="{{ url_for('transaction_log') }}"
-        class="{% if active_page == 'transaction_log' %}active{% endif %}">
-            <i class="fas fa-receipt"></i> Transaction Log
-        </a>
-
-        <a href="{{ url_for('history_log') }}"
-        class="{% if active_page == 'history_log' %}active{% endif %}">
-            <i class="fas fa-history"></i> History Log
-        </a>
+        <a href="{{ url_for('transaction_log') }}"><i class="fas fa-receipt"></i> Transaction Log</a>
+        <a href="{{ url_for('history_log') }}"><i class="fas fa-history"></i> History Log</a>
 
         <div class="menu-title">System</div>
 
-        <a href="{{ url_for('settings') }}"
-        class="{% if active_page == 'settings' %}active{% endif %}">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-
+        <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a>
     </div>
-
 
 </div>
 
@@ -216,31 +288,63 @@ body {
         <h3>Inquiries</h3>
 
         <div class="user" style="position: relative;">
-            <img src="https://i.pravatar.cc/40" 
-                style="width:35px; height:35px; border-radius:50%; cursor:pointer;" 
+            <img src="https://i.pravatar.cc/40"
+                style="width:35px; height:35px; border-radius:50%; cursor:pointer;"
                 onclick="toggleMenu()">
 
-            <div id="profileMenu" style="
-                display:none;
-                position:absolute;
-                right:0;
-                top:45px;
-                background:#fff;
-                border-radius:8px;
-                box-shadow:0 5px 15px rgba(0,0,0,0.15);
-                width:150px;
-                overflow:hidden;
-            ">
-                <a href="#" style="display:block; padding:10px; text-decoration:none; color:#333;">Profile</a>
-                <a href="#" style="display:block; padding:10px; text-decoration:none; color:#333;">Settings</a>
-                <a href="#" style="display:block; padding:10px; text-decoration:none; color:#e74c3c;">Logout</a>
+            <div id="profileMenu">
+                <a href="#">Profile</a>
+                <a href="#">Settings</a>
+                <a href="#" style="color:#ff6b6b;">Logout</a>
             </div>
         </div>
     </div>
 
     <div class="content">
 
+        <div class="table-container">
 
+            <div class="table-header">
+                <h4>Inquiry List</h4>
+
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search Inquiries">
+                </div>
+            </div>
+
+            <table id="inquiryTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inquiry in inquiries %}
+                    <tr>
+                        <td>{{ inquiry.id }}</td>
+                        <td>{{ inquiry.name }}</td>
+                        <td>{{ inquiry.email }}</td>
+                        <td>{{ inquiry.message }}</td>
+                        <td>
+                            <div class="action-container">
+                                <button class="action-btn" onclick="toggleAction(this)">Action</button>
+                                <div class="action-menu">
+                                    <button>View</button>
+                                    <button>Update</button>
+                                    <button class="delete">Delete</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
 
     </div>
 
@@ -256,12 +360,34 @@ function toggleMenu() {
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
+function toggleAction(btn) {
+    let menu = btn.nextElementSibling;
+
+    document.querySelectorAll('.action-menu').forEach(m => {
+        if (m !== menu) m.style.display = 'none';
+    });
+
+    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+}
+
 window.onclick = function(e) {
     if (!e.target.closest('.user')) {
         document.getElementById("profileMenu").style.display = "none";
     }
+    if (!e.target.closest('.action-container')) {
+        document.querySelectorAll('.action-menu').forEach(m => m.style.display = 'none');
+    }
 }
 
+// SEARCH
+document.getElementById("searchInput").addEventListener("keyup", function() {
+    let value = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#inquiryTable tbody tr");
+
+    rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+    });
+});
 </script>
 
 </body>

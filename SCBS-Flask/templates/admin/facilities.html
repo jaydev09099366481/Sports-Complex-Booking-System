@@ -17,41 +17,27 @@
 
 body {
     display: flex;
-    background: #f4f8f7;
+    background: #0f1117;
+    color: #e6f1ff;
 }
 
 /* SIDEBAR */
 .sidebar {
     width: 230px;
     height: 100vh;
-    background: linear-gradient(180deg, #205072, #329D9C);
-    color: #fff;
+    background: linear-gradient(180deg, #0f1117, #0a1f2e, #0c2d3f);
     position: fixed;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 4px 0 12px rgba(0,0,0,0.2);
+    border-right: 1px solid #1f2a38;
 }
 
 .sidebar-header {
-    background: #205072;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 15px;
+    border-bottom: 1px solid #1f2a38;
+    color: #00e5ff;
 }
 
-.sidebar-header img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-}
-
-.sidebar-header h2 {
-    font-size: 14px;
-}
-
-/* MENU */
 .menu {
     padding: 20px 0;
     flex-grow: 1;
@@ -62,7 +48,7 @@ body {
     align-items: center;
     gap: 12px;
     padding: 10px 20px;
-    color: #eaf6f6;
+    color: #9fb3c8;
     text-decoration: none;
     font-size: 14px;
     transition: 0.3s;
@@ -70,26 +56,16 @@ body {
 
 .menu a:hover,
 .menu a.active {
-    background: rgba(255,255,255,0.2);
-    color: #fff;
-    border-radius: 6px;
+    background: rgba(0, 229, 255, 0.15);
+    color: #00e5ff;
+    border-left: 3px solid #00e5ff;
 }
 
 .menu-title {
     padding: 15px 20px 5px;
     font-size: 11px;
-    color: #cfeeee;
+    color: #6b85a6;
     text-transform: uppercase;
-}
-
-/* LOGOUT */
-.logout {
-    padding: 12px 20px;
-    border-top: 1px solid rgba(255,255,255,0.2);
-}
-
-.logout a {
-    color: #ffdddd;
 }
 
 /* MAIN */
@@ -98,19 +74,42 @@ body {
     width: 100%;
 }
 
+/* TOPBAR */
 .topbar {
-    background: #205072;
-    padding: 12px 25px; /* MATCHED HEIGHT */
+    background: #0f1117;
+    padding: 12px 25px;
     display: flex;
     justify-content: space-between;
-    align-items: center; /* keeps content vertically centered */
-    border-bottom: none;
-    height: 56px; /* optional: locks exact height for consistency */
+    align-items: center;
+    border-bottom: 1px solid #1f2a38;
 }
 
 .topbar h3 {
     font-size: 18px;
-    color: #fff;
+    color: #00e5ff;
+}
+
+/* PROFILE MENU */
+#profileMenu {
+    display:none;
+    position:absolute;
+    right:0;
+    top:45px;
+    background:#0f1722;
+    border-radius:8px;
+    border:1px solid #1f2a38;
+    width:150px;
+}
+
+#profileMenu a {
+    display:block;
+    padding:10px;
+    color:#cfe8ff;
+    text-decoration:none;
+}
+
+#profileMenu a:hover {
+    background: rgba(0,229,255,0.1);
 }
 
 /* CONTENT */
@@ -118,22 +117,31 @@ body {
     padding: 25px;
 }
 
+/* EMPTY STATE */
+.empty-state {
+    background: linear-gradient(145deg, #0f1117, #111827);
+    border: 1px solid #1f2a38;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    color: #6b85a6;
+}
+
+.empty-state i {
+    font-size: 40px;
+    color: #00e5ff;
+    margin-bottom: 10px;
+}
 
 /* FOOTER */
 .footer {
     text-align: center;
     padding: 12px;
     font-size: 12px;
-    color: #777;
+    color: #6b85a6;
 }
 
 /* RESPONSIVE */
-@media(max-width: 900px){
-    .cards {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
 @media(max-width: 600px){
     .sidebar { display: none; }
     .main { margin-left: 0; }
@@ -141,16 +149,16 @@ body {
 </style>
 </head>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
+<body>
 
-        <div class="sidebar-header">
-            <img>
-            <h2>SCBS - Admin</h2>
-        </div>
+<!-- SIDEBAR -->
+<div class="sidebar">
 
+    <div class="sidebar-header">
+        <h2>SCBS - Admin</h2>
+    </div>
 
-     <div class="menu">
+    <div class="menu">
 
         <a href="{{ url_for('dashboard') }}"
         class="{% if active_page == 'dashboard' %}active{% endif %}">
@@ -217,27 +225,22 @@ body {
                 style="width:35px; height:35px; border-radius:50%; cursor:pointer;" 
                 onclick="toggleMenu()">
 
-            <div id="profileMenu" style="
-                display:none;
-                position:absolute;
-                right:0;
-                top:45px;
-                background:#fff;
-                border-radius:8px;
-                box-shadow:0 5px 15px rgba(0,0,0,0.15);
-                width:150px;
-                overflow:hidden;
-            ">
-                <a href="#" style="display:block; padding:10px; text-decoration:none; color:#333;">Profile</a>
-                <a href="#" style="display:block; padding:10px; text-decoration:none; color:#333;">Settings</a>
-                <a href="#" style="display:block; padding:10px; text-decoration:none; color:#e74c3c;">Logout</a>
+            <div id="profileMenu">
+                <a href="#">Profile</a>
+                <a href="#">Settings</a>
+                <a href="#" style="color:#ff6b6b;">Logout</a>
             </div>
         </div>
     </div>
 
     <div class="content">
 
-
+        <!-- Placeholder -->
+        <div class="empty-state">
+            <i class="fas fa-building"></i>
+            <h3>No Facilities Yet</h3>
+            <p>Facilities will appear here once added.</p>
+        </div>
 
     </div>
 
@@ -258,7 +261,6 @@ window.onclick = function(e) {
         document.getElementById("profileMenu").style.display = "none";
     }
 }
-
 </script>
 
 </body>

@@ -140,9 +140,27 @@ def facilities():
 def users():
     return render_with_active('admin/users.html', 'users')
 
+
+# ======================
+# ✅ FIXED INQUIRIES ROUTE (USE EXISTING SQLITE CONNECTION)
+# ======================
 @app.route('/inquiries')
 def inquiries():
-    return render_with_active('admin/inquiries.html', 'inquiries')
+    cursor.execute("SELECT * FROM inquiries")
+    inquiries = cursor.fetchall()
+
+    return render_template('admin/inquiries.html', inquiries=inquiries, active_page='inquiries')
+
+
+# ======================
+# ✅ DELETE INQUIRY (NEW)
+# ======================
+@app.route('/delete_inquiry/<int:id>')
+def delete_inquiry(id):
+    cursor.execute("DELETE FROM inquiries WHERE id = ?", (id,))
+    conn.commit()
+
+    return redirect(url_for('inquiries'))
 
 
 @app.route('/transaction_log')

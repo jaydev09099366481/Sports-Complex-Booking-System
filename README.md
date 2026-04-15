@@ -6,7 +6,7 @@ Paste this in the Terminal to setup the codespace:
 pip install flask
 
 Paste this in the Terminal to run the program:
-cd SCSBS-Flask
+cd SCBS-Flask
 python app.py
 
 

@@ -265,6 +265,35 @@ tbody tr:hover {
 </style>
 </head>
 
+<!-- ADD THIS BEFORE </body> -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- VIEW MODAL -->
+<div id="viewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+    <div style="background:#0f1722; padding:20px; border-radius:10px; width:300px;">
+        <h3 style="color:#00e5ff;">User Details</h3>
+        <p><b>ID:</b> <span id="view_id"></span></p>
+        <p><b>Name:</b> <span id="view_name"></span></p>
+        <p><b>Email:</b> <span id="view_email"></span></p>
+        <button onclick="closeModal('viewModal')" class="action-btn">Close</button>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+    <div style="background:#0f1722; padding:20px; border-radius:10px; width:300px;">
+        <h3 style="color:#00e5ff;">Update User</h3>
+
+        <input type="hidden" id="edit_id">
+
+        <input id="edit_name" placeholder="Name" style="width:100%; margin:5px 0; padding:8px;">
+        <input id="edit_email" placeholder="Email" style="width:100%; margin:5px 0; padding:8px;">
+
+        <button onclick="saveUser()" class="action-btn">Save</button>
+        <button onclick="closeModal('editModal')" class="action-btn">Cancel</button>
+    </div>
+</div>
+
 <body>
 
 <!-- SIDEBAR -->
@@ -387,43 +416,16 @@ tbody tr:hover {
 
 </div>
 
-<script>
-function toggleMenu() {
-    var menu = document.getElementById("profileMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-}
-
-window.onclick = function(e) {
-    if (!e.target.closest('.user')) {
-        document.getElementById("profileMenu").style.display = "none";
-    }
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-function toggleMenu() {
-    var menu = document.getElementById("profileMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-}
-
-window.onclick = function(e) {
-    if (!e.target.closest('.user')) {
-        document.getElementById("profileMenu").style.display = "none";
-    }
-
-    // Close action menus
-    document.querySelectorAll('.action-menu').forEach(menu => {
-        if (!e.target.closest('.action-container')) {
-            menu.style.display = 'none';
-        }
-    });
-}
-
-// FETCH USERS
 let usersData = [];
 
+// ======================
+// LOAD USERS
+// ======================
 function loadUsers() {
-    fetch('/fetch-users')
+    fetch('/get_users')
     .then(res => res.json())
     .then(data => {
         usersData = data;
@@ -431,6 +433,9 @@ function loadUsers() {
     });
 }
 
+// ======================
+// RENDER TABLE
+// ======================
 function renderTable(data) {
     const tbody = document.getElementById("userTableBody");
     tbody.innerHTML = "";
@@ -468,7 +473,98 @@ function renderTable(data) {
     });
 }
 
+// ======================
+// VIEW USER (SWEETALERT)
+// ======================
+function viewUser(id) {
+    fetch(`/get_user/${id}`)
+    .then(res => res.json())
+    .then(user => {
+        Swal.fire({
+            title: 'User Details',
+            html: `
+                <p><b>ID:</b> ${user.id}</p>
+                <p><b>Name:</b> ${user.name}</p>
+                <p><b>Email:</b> ${user.email}</p>
+            `,
+            icon: 'info'
+        });
+    });
+}
+
+// ======================
+// UPDATE USER (MODAL FORM)
+// ======================
+function editUser(id) {
+    fetch(`/get_user/${id}`)
+    .then(res => res.json())
+    .then(user => {
+
+        Swal.fire({
+            title: 'Update User',
+            html: `
+                <input id="swal_name" class="swal2-input" placeholder="Name" value="${user.name}">
+                <input id="swal_email" class="swal2-input" placeholder="Email" value="${user.email}">
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            preConfirm: () => {
+                return {
+                    name: document.getElementById('swal_name').value,
+                    email: document.getElementById('swal_email').value
+                };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                fetch(`/update_user/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(result.value)
+                })
+                .then(res => res.json())
+                .then(() => {
+                    Swal.fire('Updated!', 'User updated successfully', 'success');
+                    loadUsers();
+                });
+            }
+        });
+
+    });
+}
+
+// ======================
+// DELETE USER (SWEETALERT)
+// ======================
+function deleteUser(id) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This user will be deleted!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#00e5ff',
+        cancelButtonColor: '#ff6b6b',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            fetch(`/delete_user/${id}`, {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(() => {
+                Swal.fire('Deleted!', 'User has been deleted.', 'success');
+                loadUsers();
+            });
+        }
+    });
+}
+
+// ======================
 // TOGGLE ACTION MENU
+// ======================
 function toggleActionMenu(btn) {
     const menu = btn.nextElementSibling;
 
@@ -479,7 +575,9 @@ function toggleActionMenu(btn) {
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
-// SEARCH FUNCTION
+// ======================
+// SEARCH
+// ======================
 document.getElementById("searchInput").addEventListener("keyup", function() {
     const value = this.value.toLowerCase();
 
@@ -491,22 +589,9 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
     renderTable(filtered);
 });
 
-// ACTION FUNCTIONS (PLACEHOLDER)
-function viewUser(id) {
-    alert("View user ID: " + id);
-}
-
-function editUser(id) {
-    alert("Edit user ID: " + id);
-}
-
-function deleteUser(id) {
-    if (confirm("Are you sure you want to delete this user?")) {
-        alert("Delete user ID: " + id);
-    }
-}
-
-// LOAD USERS
+// ======================
+// LOAD ON START
+// ======================
 document.addEventListener("DOMContentLoaded", loadUsers);
 </script>
 

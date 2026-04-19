@@ -245,7 +245,11 @@ tbody tr:hover {
     .sidebar { display: none; }
     .main { margin-left: 0; }
 }
+
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body>
@@ -333,9 +337,15 @@ tbody tr:hover {
                             <div class="action-container">
                                 <button class="action-btn" onclick="toggleAction(this)">Action</button>
                                 <div class="action-menu">
-                                    <button>View</button>
-                                    <button>Update</button>
-                                    <button class="delete">Delete</button>
+                                    <button onclick="viewInquiry({{ inquiry.id }})">View</button>
+
+                                    <button onclick="updateInquiry({{ inquiry.id }})">Update</button>
+
+                                    <button onclick="toggleRead({{ inquiry.id }}, '{{ inquiry.status }}')">
+                                        Mark Read/Unread
+                                    </button>
+
+<button class="delete" onclick="deleteInquiry({{ inquiry.id }})">Delete</button>
                                 </div>
                             </div>
                         </td>
@@ -370,6 +380,7 @@ function toggleAction(btn) {
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
+// CLOSE ON CLICK OUTSIDE
 window.onclick = function(e) {
     if (!e.target.closest('.user')) {
         document.getElementById("profileMenu").style.display = "none";
@@ -379,7 +390,129 @@ window.onclick = function(e) {
     }
 }
 
+// ======================
+// VIEW INQUIRY
+// ======================
+function viewInquiry(id) {
+    fetch(`/get_inquiry/${id}`)
+    .then(res => res.json())
+    .then(data => {
+
+        // mark as READ when viewed
+        markAsRead(id);
+
+        Swal.fire({
+            title: "Inquiry Details",
+            html: `
+                <b>Name:</b> ${data.name}<br>
+                <b>Email:</b> ${data.email}<br><br>
+                <b>Message:</b><br>${data.message}
+            `,
+            icon: "info"
+        });
+    });
+}
+
+// ======================
+// UPDATE INQUIRY
+// ======================
+function updateInquiry(id) {
+    fetch(`/get_inquiry/${id}`)
+    .then(res => res.json())
+    .then(data => {
+
+        Swal.fire({
+            title: "Update Inquiry",
+            html: `
+                <input id="name" class="swal2-input" value="${data.name}" placeholder="Name">
+                <input id="email" class="swal2-input" value="${data.email}" placeholder="Email">
+                <textarea id="message" class="swal2-textarea">${data.message}</textarea>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            preConfirm: () => {
+                return {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    message: document.getElementById('message').value
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                fetch(`/update_inquiry/${id}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(result.value)
+                })
+                .then(res => res.json())
+                .then(() => {
+                    Swal.fire("Updated!", "Inquiry updated successfully", "success")
+                    .then(() => location.reload());
+                });
+            }
+        });
+
+    });
+}
+
+// ======================
+// DELETE INQUIRY
+// ======================
+function deleteInquiry(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This inquiry will be deleted!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            fetch(`/delete_inquiry/${id}`, {
+                method: "POST"
+            })
+            .then(() => {
+                Swal.fire("Deleted!", "Inquiry removed successfully", "success")
+                .then(() => location.reload());
+            });
+        }
+    });
+}
+
+// ======================
+// MARK AS READ / UNREAD
+// ======================
+
+// auto mark as read
+function markAsRead(id) {
+    fetch(`/mark_inquiry_read/${id}`, {
+        method: "POST"
+    });
+}
+
+// toggle read/unread manually
+function toggleRead(id, currentStatus) {
+    let newStatus = currentStatus === "read" ? "unread" : "read";
+
+    fetch(`/toggle_inquiry_status/${id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(() => {
+        Swal.fire("Updated!", "Status changed to " + newStatus, "success")
+        .then(() => location.reload());
+    });
+}
+
+// ======================
 // SEARCH
+// ======================
 document.getElementById("searchInput").addEventListener("keyup", function() {
     let value = this.value.toLowerCase();
     let rows = document.querySelectorAll("#inquiryTable tbody tr");

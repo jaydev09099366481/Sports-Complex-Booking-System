@@ -3,7 +3,7 @@ import sqlite3
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from fetch_users import fetch_user
 from fetch_inquiries import fetch_inquiry
-
+from fetch_categories import fetch_categories
 
 # ======================
 # FIX: FORCE TEMPLATE PATH
@@ -15,6 +15,7 @@ app.secret_key = 'your_secret_key_here'
 
 app.register_blueprint(fetch_user)
 app.register_blueprint(fetch_inquiry)
+app.register_blueprint(fetch_categories)
 
 # ======================
 # DATABASE CONNECTION
@@ -44,7 +45,33 @@ CREATE TABLE IF NOT EXISTS inquiries (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    status TEXT DEFAULT 'Available',
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
 conn.commit()
+
+# ======================
+# DUMMY DATA FOR CATEGORIES
+# ======================
+cursor.executemany("""
+    INSERT INTO categories (name, description, status)
+    VALUES (?, ?, ?)
+""", [
+    ("Basketball Court", "Standard full court", "Available"),
+    ("Swimming Pool", "Olympic size pool", "Available"),
+    ("Tennis Court", "Outdoor tennis court", "Maintenance"),
+    ("Badminton Court", "Indoor badminton area", "Available"),
+    ("Football Field", "Full size football field", "Unavailable")
+])
+
+conn.commit() 
 
 # ======================
 # HELPER FUNCTION
@@ -189,6 +216,27 @@ def delete_inquiry(id):
 def mark_inquiry_read(id):
     cursor.execute("UPDATE inquiries SET status='read' WHERE id=?", (id,))
     conn.commit()
+    return jsonify({"status": "success"})
+
+
+@app.route('/add_category', methods=['POST'])
+def add_category():
+    data = request.get_json()
+
+    name = data.get('name')
+    description = data.get('description')
+    status = data.get('status')
+
+    if not name:
+        return jsonify({"status": "error", "message": "Name is required"})
+
+    cursor.execute("""
+        INSERT INTO categories (name, description, status)
+        VALUES (?, ?, ?)
+    """, (name, description, status))
+
+    conn.commit()
+
     return jsonify({"status": "success"})
 
 # ======================

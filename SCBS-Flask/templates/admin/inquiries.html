@@ -336,16 +336,28 @@ tbody tr:hover {
                         <td>
                             <div class="action-container">
                                 <button class="action-btn" onclick="toggleAction(this)">Action</button>
+
                                 <div class="action-menu">
-                                    <button onclick="viewInquiry({{ inquiry.id }})">View</button>
+                                    <button onclick="viewInquiry(this)" 
+                                            data-id="{{ inquiry.id }}">
+                                        View
+                                    </button>
 
-                                    <button onclick="updateInquiry({{ inquiry.id }})">Update</button>
+                                    <button onclick="updateInquiry(this)" 
+                                            data-id="{{ inquiry.id }}">
+                                        Update
+                                    </button>
 
-                                    <button onclick="toggleRead({{ inquiry.id }}, '{{ inquiry.status }}')">
+                                    <button onclick="toggleRead(this)" 
+                                            data-id="{{ inquiry.id }}" 
+                                            data-status="{{ inquiry.status }}">
                                         Mark Read/Unread
                                     </button>
 
-<button class="delete" onclick="deleteInquiry({{ inquiry.id }})">Delete</button>
+                                    <button class="delete" onclick="deleteInquiry(this)" 
+                                            data-id="{{ inquiry.id }}">
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </td>

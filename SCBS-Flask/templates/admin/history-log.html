@@ -38,11 +38,7 @@ body {
     color: #00e5ff;
 }
 
-/* MENU */
-.menu {
-    padding: 20px 0;
-    flex-grow: 1;
-}
+.menu { padding: 20px 0; flex-grow: 1; }
 
 .menu a {
     display: flex;
@@ -90,7 +86,7 @@ body {
     color: #00e5ff;
 }
 
-/* PROFILE MENU */
+/* PROFILE */
 #profileMenu {
     display:none;
     position:absolute;
@@ -100,6 +96,7 @@ body {
     border-radius:8px;
     border:1px solid #1f2a38;
     width:150px;
+    z-index: 10;
 }
 
 #profileMenu a {
@@ -116,6 +113,79 @@ body {
 /* CONTENT */
 .content {
     padding: 25px;
+}
+
+/* ===================== */
+/* YOUR REQUESTED STYLES */
+/* ===================== */
+
+.table-container {
+    background: linear-gradient(145deg, #0f1117, #111827);
+    border: 1px solid #1f2a38;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* HEADER */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.table-header h4 {
+    color: #00e5ff;
+}
+
+/* SEARCH */
+.search-box input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #1f2a38;
+    background: #0a0f1a;
+    color: #e6f1ff;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-box input:focus {
+    border-color: #00e5ff;
+    box-shadow: 0 0 8px rgba(0,229,255,0.3);
+}
+
+.search-box input::placeholder {
+    color: #6b85a6;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #0a1f2e;
+}
+
+th {
+    color: #00e5ff;
+    font-weight: 500;
+}
+
+th, td {
+    padding: 10px;
+    font-size: 13px;
+    text-align: left;
+}
+
+tbody tr {
+    border-top: 1px solid #1f2a38;
+    transition: 0.2s;
+}
+
+tbody tr:hover {
+    background: rgba(0, 229, 255, 0.08);
 }
 
 /* EMPTY STATE */
@@ -154,66 +224,30 @@ body {
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-
     <div class="sidebar-header">
         <h2>SCBS - Admin</h2>
     </div>
 
     <div class="menu">
-
-        <a href="{{ url_for('dashboard') }}"
-        class="{% if active_page == 'dashboard' %}active{% endif %}">
-            <i class="fas fa-home"></i> Dashboard
-        </a>
-
-        <a href="{{ url_for('reservations') }}"
-        class="{% if active_page == 'reservations' %}active{% endif %}">
-            <i class="fas fa-calendar-check"></i> Reservations
-        </a>
+        <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="{{ url_for('reservations') }}"><i class="fas fa-calendar-check"></i> Reservations</a>
 
         <div class="menu-title">Management</div>
 
-        <a href="{{ url_for('categories') }}"
-        class="{% if active_page == 'categories' %}active{% endif %}">
-            <i class="fas fa-layer-group"></i> Categories
-        </a>
-
-        <a href="{{ url_for('facilities') }}"
-        class="{% if active_page == 'facilities' %}active{% endif %}">
-            <i class="fas fa-building"></i> Facilities
-        </a>
-
-        <a href="{{ url_for('users') }}"
-        class="{% if active_page == 'users' %}active{% endif %}">
-            <i class="fas fa-users"></i> Users
-        </a>
-
-        <a href="{{ url_for('inquiries') }}"
-        class="{% if active_page == 'inquiries' %}active{% endif %}">
-            <i class="fas fa-envelope"></i> Inquiries
-        </a>
+        <a href="{{ url_for('categories') }}"><i class="fas fa-layer-group"></i> Categories</a>
+        <a href="{{ url_for('facilities') }}"><i class="fas fa-building"></i> Facilities</a>
+        <a href="{{ url_for('users') }}"><i class="fas fa-users"></i> Users</a>
+        <a href="{{ url_for('inquiries') }}"><i class="fas fa-envelope"></i> Inquiries</a>
 
         <div class="menu-title">Logs</div>
 
-        <a href="{{ url_for('transaction_log') }}"
-        class="{% if active_page == 'transaction_log' %}active{% endif %}">
-            <i class="fas fa-receipt"></i> Transaction Log
-        </a>
-
-        <a href="{{ url_for('history_log') }}"
-        class="{% if active_page == 'history_log' %}active{% endif %}">
-            <i class="fas fa-history"></i> History Log
-        </a>
+        <a href="{{ url_for('transaction_log') }}"><i class="fas fa-receipt"></i> Transaction Log</a>
+        <a class="active" href="{{ url_for('history_log') }}"><i class="fas fa-history"></i> History Log</a>
 
         <div class="menu-title">System</div>
 
-        <a href="{{ url_for('settings') }}"
-        class="{% if active_page == 'settings' %}active{% endif %}">
-            <i class="fas fa-cog"></i> Settings
-        </a>
-
+        <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a>
     </div>
-
 </div>
 
 <!-- MAIN -->
@@ -223,9 +257,9 @@ body {
         <h3>History Log</h3>
 
         <div class="user" style="position: relative;">
-            <img src="https://i.pravatar.cc/40" 
-                style="width:35px; height:35px; border-radius:50%; cursor:pointer;" 
-                onclick="toggleMenu()">
+            <img src="https://i.pravatar.cc/40"
+                 style="width:35px; height:35px; border-radius:50%; cursor:pointer;"
+                 onclick="toggleMenu()">
 
             <div id="profileMenu">
                 <a href="#">Profile</a>
@@ -237,12 +271,54 @@ body {
 
     <div class="content">
 
-        <!-- EMPTY STATE -->
+        {% if history_logs and history_logs|length > 0 %}
+
+        <div class="table-container">
+
+            <div class="table-header">
+                <h4>History Records</h4>
+
+                <div class="search-box">
+                    <input type="text" placeholder="Search history...">
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Action</th>
+                        <th>Table</th>
+                        <th>Record ID</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for log in history_logs %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.table_name }}</td>
+                        <td>{{ log.record_id }}</td>
+                        <td>{{ log.description }}</td>
+                        <td>{{ log.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+
         <div class="empty-state">
             <i class="fas fa-history"></i>
             <h3>No History Yet</h3>
             <p>History logs will appear here once activities are recorded.</p>
         </div>
+
+        {% endif %}
 
     </div>
 
@@ -262,6 +338,29 @@ window.onclick = function(e) {
     if (!e.target.closest('.user')) {
         document.getElementById("profileMenu").style.display = "none";
     }
+}
+
+
+/* =========================
+   LIVE SEARCH FUNCTION
+========================= */
+const searchInput = document.querySelector(".search-box input");
+
+if (searchInput) {
+    searchInput.addEventListener("keyup", function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+
+            if (text.includes(filter)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
 }
 </script>
 

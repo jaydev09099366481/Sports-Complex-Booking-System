@@ -1,112 +1,108 @@
 import os
 import sqlite3
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
+
 from fetch_users import fetch_user
 from fetch_inquiries import fetch_inquiry
 from fetch_categories import fetch_categories
+from add_categories import add_categories
 
 # ======================
-# FIX: FORCE TEMPLATE PATH
+# BASE DIRECTORY
 # ======================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, 'templates'))
 app.secret_key = 'your_secret_key_here'
 
+# ======================
+# BLUEPRINTS
+# ======================
 app.register_blueprint(fetch_user)
 app.register_blueprint(fetch_inquiry)
 app.register_blueprint(fetch_categories)
+app.register_blueprint(add_categories)
 
 # ======================
 # DATABASE CONNECTION
 # ======================
-conn = sqlite3.connect(os.path.join(BASE_DIR, 'database.db'), check_same_thread=False)
+db_path = os.path.join(BASE_DIR, 'database.db')
+conn = sqlite3.connect(db_path, check_same_thread=False)
 conn.row_factory = sqlite3.Row
 cursor = conn.cursor()
 
 # ======================
 # CREATE TABLES
 # ======================
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT UNIQUE,
-    password TEXT
-)
-""")
+def init_db():
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT UNIQUE,
+        password TEXT
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS inquiries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT,
-    message TEXT
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS inquiries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        message TEXT,
+        status TEXT DEFAULT 'unread'
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS categories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    status TEXT DEFAULT 'Available',
-    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        status TEXT DEFAULT 'Available',
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
 
-conn.commit()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS history_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action TEXT NOT NULL,
+        table_name TEXT NOT NULL,
+        record_id INTEGER,
+        description TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    conn.commit()
+
+init_db()
 
 # ======================
-# DUMMY DATA FOR CATEGORIES
-# ======================
-cursor.executemany("""
-    INSERT INTO categories (name, description, status)
-    VALUES (?, ?, ?)
-""", [
-    ("Basketball Court", "Standard full court", "Available"),
-    ("Swimming Pool", "Olympic size pool", "Available"),
-    ("Tennis Court", "Outdoor tennis court", "Maintenance"),
-    ("Badminton Court", "Indoor badminton area", "Available"),
-    ("Football Field", "Full size football field", "Unavailable")
-])
-
-conn.commit() 
-
-# ======================
-# HELPER FUNCTION
+# HELPERS
 # ======================
 def render_with_active(template, active_page):
     return render_template(template, active_page=active_page)
 
 # ======================
-# LANDING PAGE
+# ROUTES
 # ======================
 @app.route('/')
 def index():
-    user = session.get('user')
-    return render_template('index.html', user=user)
+    return render_template('index.html', user=session.get('user'))
 
-# ======================
-# LOGIN & SIGNUP
-# ======================
+# LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-
         action = request.form.get('action')
 
-        # ======================
-        # SIGNUP
-        # ======================
         if action == 'signup':
             name = request.form.get('name')
             email = request.form.get('email')
             password = request.form.get('password')
             confirm_password = request.form.get('confirm_password')
-
-            if not name or not email or not password or not confirm_password:
-                return jsonify({"status": "error", "message": "All fields are required"})
 
             if password != confirm_password:
                 return jsonify({"status": "error", "message": "Passwords do not match"})
@@ -118,13 +114,9 @@ def login():
                 )
                 conn.commit()
                 return jsonify({"status": "success"})
-
             except sqlite3.IntegrityError:
                 return jsonify({"status": "error", "message": "Email already exists"})
 
-        # ======================
-        # LOGIN
-        # ======================
         elif action == 'login':
             email = request.form.get('email')
             password = request.form.get('password')
@@ -138,21 +130,17 @@ def login():
             if user:
                 session['user'] = user['email']
                 return jsonify({"status": "success"})
-            else:
-                return jsonify({"status": "error", "message": "Invalid email or password"})
+            return jsonify({"status": "error", "message": "Invalid credentials"})
 
     return render_template('auth/login.html')
 
 # ======================
-# ADMIN DASHBOARD
+# ADMIN PAGES
 # ======================
 @app.route('/admin')
 def dashboard():
     return render_with_active('admin/dashboard.html', 'dashboard')
 
-# ======================
-# STATIC ADMIN PAGES
-# ======================
 @app.route('/reservations')
 def reservations():
     return render_with_active('admin/reservations.html', 'reservations')
@@ -165,16 +153,24 @@ def categories():
 def facilities():
     return render_with_active('admin/facilities.html', 'facilities')
 
-# 🔥 FIXED: renamed function to avoid conflict
 @app.route('/users')
 def users():
     return render_with_active('admin/users.html', 'users')
 
-@app.route('/get_inquiry/<int:id>')
-def get_inquiry(id):
-    cursor.execute("SELECT * FROM inquiries WHERE id=?", (id,))
-    return jsonify(dict(cursor.fetchone()))
+# ======================
+# INQUIRIES
+# ======================
+@app.route('/inquiries')
+def inquiries():
+    cursor.execute("SELECT * FROM inquiries")
+    data = cursor.fetchall()
+    return render_template('admin/inquiries.html', inquiries=data, active_page='inquiries')
 
+@app.route('/delete_inquiry/<int:id>')
+def delete_inquiry(id):
+    cursor.execute("DELETE FROM inquiries WHERE id = ?", (id,))
+    conn.commit()
+    return redirect(url_for('inquiries'))
 
 @app.route('/update_inquiry/<int:id>', methods=['POST'])
 def update_inquiry(id):
@@ -188,78 +184,34 @@ def update_inquiry(id):
 
     conn.commit()
     return jsonify({"status": "success"})
+
 # ======================
-# INQUIRIES
+# HISTORY LOG (IMPORTANT FIX HERE)
 # ======================
-@app.route('/inquiries')
-def inquiries():
-    cursor.execute("SELECT * FROM inquiries")
-    data = cursor.fetchall()
+@app.route('/history_log')
+def history_log():
+    cursor.execute("SELECT * FROM history_log ORDER BY created_at DESC")
+    logs = cursor.fetchall()
 
     return render_template(
-        'admin/inquiries.html',
-        inquiries=data,
-        active_page='inquiries'
+        'admin/history-log.html',
+        history_logs=logs,
+        active_page='history_log'
     )
 
 # ======================
-# DELETE INQUIRY
-# ======================
-@app.route('/delete_inquiry/<int:id>')
-def delete_inquiry(id):
-    cursor.execute("DELETE FROM inquiries WHERE id = ?", (id,))
-    conn.commit()
-    return redirect(url_for('inquiries'))
-
-
-@app.route('/mark_inquiry_read/<int:id>', methods=['POST'])
-def mark_inquiry_read(id):
-    cursor.execute("UPDATE inquiries SET status='read' WHERE id=?", (id,))
-    conn.commit()
-    return jsonify({"status": "success"})
-
-
-@app.route('/add_category', methods=['POST'])
-def add_category():
-    data = request.get_json()
-
-    name = data.get('name')
-    description = data.get('description')
-    status = data.get('status')
-
-    if not name:
-        return jsonify({"status": "error", "message": "Name is required"})
-
-    cursor.execute("""
-        INSERT INTO categories (name, description, status)
-        VALUES (?, ?, ?)
-    """, (name, description, status))
-
-    conn.commit()
-
-    return jsonify({"status": "success"})
-
-# ======================
-# OTHER ADMIN PAGES
+# OTHER PAGES
 # ======================
 @app.route('/transaction_log')
 def transaction_log():
     return render_with_active('admin/transaction-log.html', 'transaction_log')
-
-@app.route('/history_log')
-def history_log():
-    return render_with_active('admin/history-log.html', 'history_log')
-
-@app.route('/chatbot')
-def chatbot():
-    return render_with_active('admin/chatbot.html', 'chatbot')
 
 @app.route('/settings')
 def settings():
     return render_with_active('admin/settings.html', 'settings')
 
 # ======================
-# CONTACT FORM
+# CONTACT
 # ======================
 @app.route('/contact', methods=['POST'])
 def contact():
@@ -269,23 +221,13 @@ def contact():
     email = data.get('email')
     message = data.get('message')
 
-    if not name or not email or not message:
-        return jsonify({"status": "error", "message": "All fields are required"})
+    cursor.execute(
+        "INSERT INTO inquiries (name, email, message) VALUES (?, ?, ?)",
+        (name, email, message)
+    )
+    conn.commit()
 
-    if "@gmail.com" not in email:
-        return jsonify({"status": "error", "message": "Email must be Gmail only"})
-
-    try:
-        cursor.execute(
-            "INSERT INTO inquiries (name, email, message) VALUES (?, ?, ?)",
-            (name, email, message)
-        )
-        conn.commit()
-
-        return jsonify({"status": "success"})
-
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+    return jsonify({"status": "success"})
 
 # ======================
 # LOGOUT
@@ -296,15 +238,7 @@ def logout():
     return redirect(url_for('index'))
 
 # ======================
-# DEBUG TEST ROUTE
-# ======================
-@app.route('/test')
-def test():
-    return render_template('admin/dashboard.html')
-    
-
-# ======================
-# RUN
+# RUN APP
 # ======================
 if __name__ == '__main__':
     app.run(debug=True)

@@ -4,19 +4,26 @@ from flask import Blueprint, jsonify
 
 fetch_categories = Blueprint('fetch_categories', __name__)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-conn = sqlite3.connect(os.path.join(BASE_DIR, 'database.db'), check_same_thread=False)
-conn.row_factory = sqlite3.Row
-cursor = conn.cursor()
+DB_NAME = os.path.join(os.getcwd(), "database.db")
 
-# ======================
-# FETCH ALL CATEGORIES
-# ======================
 @fetch_categories.route('/get_categories')
 def get_categories():
-    cursor.execute("SELECT * FROM categories")
-    data = cursor.fetchall()
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
 
-    categories = [dict(row) for row in data]
+    cursor.execute("""
+        SELECT 
+            id,
+            name,
+            description,
+            status
+        FROM categories
+        ORDER BY id ASC
+    """)
 
-    return jsonify(categories)
+    data = cursor.fetchall()   # ✅ FIX: fetch the data
+
+    conn.close()
+
+    return jsonify([dict(row) for row in data])  # ✅ FIX: use data

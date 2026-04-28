@@ -33,7 +33,7 @@ def create_category():
             action="CREATE",
             table_name="categories",
             record_id=category_id,
-            description=f"Created category '{name}'"
+            description=f"Admin added category '{name}'"
         )
 
         conn.close()

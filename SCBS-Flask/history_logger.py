@@ -1,5 +1,19 @@
 import sqlite3
 from config import DB_NAME
+from datetime import datetime
+
+def format_logs(logs):
+    formatted = []
+
+    for log in logs:
+        dt = datetime.strptime(log["created_at"], "%Y-%m-%d %H:%M:%S")
+
+        log["date"] = dt.strftime("%B %d, %Y")   # April 29, 2026
+        log["time"] = dt.strftime("%I:%M %p")    # 01:40 AM
+
+        formatted.append(log)
+
+    return formatted
 
 def log_action(action, table_name, record_id=None, description=None):
     try:

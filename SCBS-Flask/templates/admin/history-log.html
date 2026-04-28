@@ -286,8 +286,9 @@ tbody tr:hover {
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>#</th>
                     <th>Date</th>
+                    <th>Time</th>
                     <th>Action</th>
                     <th>Description</th>
                 </tr>
@@ -297,7 +298,13 @@ tbody tr:hover {
                 {% for log in history_logs %}
                 <tr>
                     <td>{{ log.id }}</td>
-                    <td>{{ log.created_at }}</td>
+
+                    <!-- Split date & time -->
+                    {% set dt = log.created_at.split(" ") %}
+
+                    <td>{{ dt[0] }}</td>
+                    <td>{{ dt[1] if dt|length > 1 else "" }}</td>
+
                     <td>{{ log.action }}</td>
                     <td>{{ log.description }}</td>
                 </tr>

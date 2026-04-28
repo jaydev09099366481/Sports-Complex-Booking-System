@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 import sqlite3
 import os
 from werkzeug.security import generate_password_hash
+from history_logger import log_action   # ✅ IMPORT LOGGER
 
 # Create Blueprint
 fetch_user = Blueprint('fetch_user', __name__)
@@ -93,10 +94,19 @@ def create_user():
         return jsonify({"status": "error", "message": "Email already exists"})
 
     finally:
+        
+        user_id = cursor.lastrowid
+        # ✅ LOG THE ACTION
+        log_action(
+            action="CREATE",
+            table_name="users",
+            record_id=user_id,
+            description=f"Admin added user '{name}'"
+        )
+
         conn.close()
 
     return jsonify({"status": "success", "message": "User created successfully"})
-
 
 # ======================
 # UPDATE USER
@@ -125,6 +135,14 @@ def update_user(id):
     conn.commit()
     conn.close()
 
+    # ✅ LOG THE ACTION
+    log_action(
+        action="UPDATE",
+        table_name="users",
+        record_id=id,
+        description=f"Admin updated user '{name}'"
+    )
+
     return jsonify({"status": "success", "message": "User updated successfully"})
 
 
@@ -133,11 +151,25 @@ def update_user(id):
 # ======================
 @fetch_user.route('/delete_user/<int:id>', methods=['POST'])
 def delete_user(id):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    # ✅ get user first
+    cursor.execute("SELECT name FROM users WHERE id=?", (id,))
+    user = cursor.fetchone()
+
+    # delete user
     cursor.execute("DELETE FROM users WHERE id=?", (id,))
     conn.commit()
     conn.close()
+
+    # log action
+    log_action(
+        action="DELETE",
+        table_name="users",
+        record_id=id,
+        description=f"Admin deleted user '{user[0] if user else 'Unknown'}'"
+    )
 
     return jsonify({"status": "success", "message": "User deleted successfully"})

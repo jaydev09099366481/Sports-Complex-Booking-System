@@ -1,56 +1,45 @@
 import sqlite3
-from werkzeug.security import generate_password_hash
 
 conn = sqlite3.connect("database.db")
 cursor = conn.cursor()
 
 cursor.executemany("""
-    INSERT INTO users (name, email, password, phone, role, status)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO facilities (category, name, description, status)
+    VALUES (?, ?, ?, ?)
 """, [
     (
-        "John Doe",
-        "john@example.com",
-        generate_password_hash("123456"),
-        "09123456789",
-        "admin",
-        "active"
+        "Basketball Court",
+        "Main Court A",
+        "Indoor full-size basketball court with LED lighting",
+        "Available"
     ),
     (
-        "Jane Smith",
-        "jane@example.com",
-        generate_password_hash("123456"),
-        "09987654321",
-        "user",
-        "active"
+        "Swimming Pool",
+        "Olympic Pool",
+        "50-meter Olympic size swimming pool",
+        "Available"
     ),
     (
-        "Michael Brown",
-        "michael@example.com",
-        generate_password_hash("123456"),
-        "09111222333",
-        "user",
-        "inactive"
+        "Tennis Court",
+        "Court 1",
+        "Standard clay tennis court",
+        "Available"
     ),
     (
-        "Sarah Johnson",
-        "sarah@example.com",
-        generate_password_hash("123456"),
-        "09223344556",
-        "user",
-        "active"
+        "Gym",
+        "Fitness Center",
+        "Fully equipped gym with modern machines",
+        "Maintenance"
     ),
     (
-        "Admin User",
-        "admin@scbs.com",
-        generate_password_hash("admin123"),
-        "09000000000",
-        "admin",
-        "active"
+        "Football Field",
+        "Main Field",
+        "Full-size grass football field",
+        "Available"
     )
 ])
 
 conn.commit()
 conn.close()
 
-print("Dummy users data inserted successfully!")
+print("Dummy facilities data inserted successfully!")

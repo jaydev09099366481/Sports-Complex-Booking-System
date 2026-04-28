@@ -454,6 +454,8 @@ tbody tr:hover {
 
         <form id="createCategoryForm">
 
+            <input type="hidden" id="categoryId">
+
             <label>Category Name *</label>
             <input type="text" id="categoryName" required>
 
@@ -505,8 +507,7 @@ function loadCategories() {
                     <!-- INLINE ACTION BUTTONS -->
                     <td style="text-align:center; white-space:nowrap;">
 
-                        <button class="action-btn"
-                                onclick="editCategory(${cat.id})">
+                        <button class="action-btn" onclick="openEditModal(${cat.id}, '${cat.name}', '${cat.description}', '${cat.status}')">
                             Edit
                         </button>
 
@@ -546,38 +547,28 @@ function closeCreateModal() {
 document.getElementById("createCategoryForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
+    const id = document.getElementById("categoryId").value;
     const name = document.getElementById("categoryName").value;
     const description = document.getElementById("categoryDescription").value;
     const status = document.getElementById("categoryStatus").value;
 
-    if (!name.trim()) {
-        Swal.fire("Error", "Category name is required!", "error");
-        return;
-    }
+    const url = id ? `/update_category/${id}` : "/create_category";
 
-    // ✅ SWEETALERT CONFIRM FIRST
+    const actionText = id ? "Update" : "Create";
+
     Swal.fire({
-        title: "Create Category?",
-        text: "This will be saved to database.",
+        title: `${actionText} Category?`,
         icon: "question",
         showCancelButton: true,
-        confirmButtonText: "Yes",
-        cancelButtonText: "Cancel"
-    }).then((result) => {
+        confirmButtonText: "Yes"
+    }).then(result => {
 
-        // ❗ ONLY INSERT IF CONFIRMED
         if (!result.isConfirmed) return;
 
-        fetch("/create_category", {
+        fetch(url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: name,
-                description: description,
-                status: status
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, description, status })
         })
         .then(res => res.json())
         .then(data => {
@@ -585,9 +576,11 @@ document.getElementById("createCategoryForm").addEventListener("submit", functio
             Swal.fire("Success", data.message, "success");
 
             closeCreateModal();
-            document.getElementById("createCategoryForm").reset();
+            this.reset();
+            document.getElementById("categoryId").value = "";
+            document.querySelector(".modal-content h3").innerText = "Create Category";
 
-            loadCategories(); // reload table
+            loadCategories();
         });
 
     });
@@ -606,32 +599,43 @@ function searchCategory() {
         row.style.display = text.includes(input) ? "" : "none";
     });
 }
+function openEditModal(id, name, description, status) {
 
-// =============================
-// SAMPLE ACTIONS
-// =============================
-function viewCategory(id) {
-    Swal.fire("View", "Category ID: " + id, "info");
-}
+    document.getElementById("categoryId").value = id;
+    document.getElementById("categoryName").value = name;
+    document.getElementById("categoryDescription").value = description;
+    document.getElementById("categoryStatus").value = status;
 
-function editCategory(id) {
-    Swal.fire("Edit", "Category ID: " + id, "info");
+    document.querySelector(".modal-content h3").innerText = "Edit Category";
+
+    document.getElementById("createModal").style.display = "block";
 }
 
 function deleteCategory(id) {
+
     Swal.fire({
         title: "Delete Category?",
-        text: "This cannot be undone!",
+        text: "This action cannot be undone!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Delete"
+        confirmButtonColor: "#ff6b6b",
+        confirmButtonText: "Yes, delete it"
     }).then(result => {
-        if (result.isConfirmed) {
-            Swal.fire("Deleted!", "Implement backend delete here.", "success");
-        }
+
+        if (!result.isConfirmed) return;
+
+        fetch(`/delete_category/${id}`, {
+            method: "POST"
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            Swal.fire("Deleted!", data.message, "success");
+            loadCategories();
+        });
+
     });
 }
-
 </script>
 
 </body>

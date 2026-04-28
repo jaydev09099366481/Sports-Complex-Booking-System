@@ -8,7 +8,6 @@ from fetch_users import fetch_user
 from fetch_inquiries import fetch_inquiry
 from fetch_categories import fetch_categories
 from fetch_facility import fetch_facility
-from add_categories import add_categories
 
 # ======================
 # BASE DIRECTORY
@@ -25,7 +24,6 @@ app.register_blueprint(fetch_user)
 app.register_blueprint(fetch_inquiry)
 app.register_blueprint(fetch_categories)
 app.register_blueprint(fetch_facility)
-app.register_blueprint(add_categories)
 
 # ======================
 # DATABASE CONNECTION

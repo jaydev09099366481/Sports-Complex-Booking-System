@@ -333,33 +333,31 @@ tbody tr:hover {
                         <td>{{ inquiry.name }}</td>
                         <td>{{ inquiry.email }}</td>
                         <td>{{ inquiry.message }}</td>
-                        <td>
-                            <div class="action-container">
-                                <button class="action-btn" onclick="toggleAction(this)">Action</button>
 
-                                <div class="action-menu">
-                                    <button onclick="viewInquiry(this)" 
-                                            data-id="{{ inquiry.id }}">
-                                        View
-                                    </button>
+                        <!-- INLINE ACTION BUTTONS -->
+                        <td style="text-align:center; white-space:nowrap;">
 
-                                    <button onclick="updateInquiry(this)" 
-                                            data-id="{{ inquiry.id }}">
-                                        Update
-                                    </button>
+                            <button class="action-btn"
+                                    onclick="viewInquiry('{{ inquiry.id }}')">
+                                View
+                            </button>
 
-                                    <button onclick="toggleRead(this)" 
-                                            data-id="{{ inquiry.id }}" 
-                                            data-status="{{ inquiry.status }}">
-                                        Mark Read/Unread
-                                    </button>
+                            <button class="action-btn"
+                                    onclick="updateInquiry('{{ inquiry.id }}')">
+                                Update
+                            </button>
 
-                                    <button class="delete" onclick="deleteInquiry(this)" 
-                                            data-id="{{ inquiry.id }}">
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
+                            <button class="action-btn"
+                                    onclick="toggleRead('{{ inquiry.id }}', '{{ inquiry.status }}')">
+                                {{ 'Mark Unread' if inquiry.status == 'read' else 'Mark Read' }}
+                            </button>
+
+                            <button class="action-btn"
+                                    style="background:#ff6b6b; color:#fff;"
+                                    onclick="deleteInquiry('{{ inquiry.id }}')">
+                                Delete
+                            </button>
+
                         </td>
                     </tr>
                     {% endfor %}
@@ -396,9 +394,6 @@ function toggleAction(btn) {
 window.onclick = function(e) {
     if (!e.target.closest('.user')) {
         document.getElementById("profileMenu").style.display = "none";
-    }
-    if (!e.target.closest('.action-container')) {
-        document.querySelectorAll('.action-menu').forEach(m => m.style.display = 'none');
     }
 }
 

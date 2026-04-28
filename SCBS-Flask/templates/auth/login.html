@@ -306,6 +306,11 @@ body {
             </div>
 
             <div class="inputBox">
+                <input type="text" name="phone" id="phone" required>
+                <label>Phone Number</label>
+            </div>
+
+            <div class="inputBox">
                 <input type="password" name="password" id="password" required>
                 <label>Password</label>
             </div>
@@ -366,11 +371,12 @@ signupForm.addEventListener("submit", function(e) {
 
     let name = document.getElementById("name").value.trim();
     let email = document.getElementById("signupEmail").value.trim();
+    let phone = document.getElementById("phone").value.trim();
     let password = document.getElementById("password").value;
     let confirm = document.getElementById("confirmPassword").value;
     let terms = document.getElementById("terms").checked;
 
-    if (!name || !email || !password || !confirm) {
+    if (!name || !email || !phone || !password || !confirm) {
         Swal.fire("Error", "All fields are required!", "error");
         return;
     }
@@ -392,13 +398,23 @@ signupForm.addEventListener("submit", function(e) {
             action: "signup",
             name,
             email,
+            phone,
             password,
             confirm_password: confirm
         })
     })
-    .then(res => res.json())
+    .then(async res => {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            console.error("NOT JSON RESPONSE:", text);
+            throw new Error("Server returned non-JSON response");
+        }
+    })
     .then(data => {
         if (data.status === "success") {
+
             Swal.fire({
                 icon: "success",
                 title: "Account Created!",
@@ -409,6 +425,7 @@ signupForm.addEventListener("submit", function(e) {
                 showLogin();
                 signupForm.reset();
             });
+
         } else {
             Swal.fire("Error", data.message, "error");
         }
@@ -439,9 +456,18 @@ loginForm.addEventListener("submit", function(e) {
             password
         })
     })
-    .then(res => res.json())
+    .then(async res => {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            console.error("NOT JSON RESPONSE:", text);
+            throw new Error("Server returned non-JSON response");
+        }
+    })
     .then(data => {
         if (data.status === "success") {
+
             Swal.fire({
                 icon: "success",
                 title: "Login Successful!",
@@ -451,6 +477,7 @@ loginForm.addEventListener("submit", function(e) {
             }).then(() => {
                 window.location.href = "/";
             });
+
         } else {
             Swal.fire("Login Failed", data.message, "error");
         }

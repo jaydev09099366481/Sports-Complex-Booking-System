@@ -1,10 +1,13 @@
 import os
 import sqlite3
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
 
 from fetch_users import fetch_user
 from fetch_inquiries import fetch_inquiry
 from fetch_categories import fetch_categories
+from fetch_facility import fetch_facility
 from add_categories import add_categories
 
 # ======================
@@ -21,6 +24,7 @@ app.secret_key = 'your_secret_key_here'
 app.register_blueprint(fetch_user)
 app.register_blueprint(fetch_inquiry)
 app.register_blueprint(fetch_categories)
+app.register_blueprint(fetch_facility)
 app.register_blueprint(add_categories)
 
 # ======================
@@ -31,16 +35,25 @@ conn = sqlite3.connect(db_path, check_same_thread=False)
 conn.row_factory = sqlite3.Row
 cursor = conn.cursor()
 
+
+
 # ======================
 # CREATE TABLES
 # ======================
 def init_db():
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT UNIQUE,
-        password TEXT
+
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        phone TEXT,
+        role TEXT DEFAULT 'user',              -- admin / user
+        status TEXT DEFAULT 'active',          -- active / inactive / banned
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        profile_image TEXT                    -- optional (path or URL)
     )
     """)
 
@@ -61,6 +74,20 @@ def init_db():
         description TEXT,
         status TEXT DEFAULT 'Available',
         date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # ======================
+    # FACILITIES TABLE (NEW)
+    # ======================
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS facilities (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        category TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        status TEXT DEFAULT 'Available'
     )
     """)
 
@@ -92,45 +119,71 @@ def render_with_active(template, active_page):
 def index():
     return render_template('index.html', user=session.get('user'))
 
+
 # LOGIN
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        action = request.form.get('action')
 
-        if action == 'signup':
-            name = request.form.get('name')
-            email = request.form.get('email')
-            password = request.form.get('password')
-            confirm_password = request.form.get('confirm_password')
+        conn = None
 
-            if password != confirm_password:
-                return jsonify({"status": "error", "message": "Passwords do not match"})
+        try:
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
 
-            try:
+            action = request.form.get('action')
+
+            # ======================
+            # SIGNUP
+            # ======================
+            if action == 'signup':
+                name = request.form.get('name')
+                email = request.form.get('email')
+                password = request.form.get('password')
+                confirm_password = request.form.get('confirm_password')
+
+                if password != confirm_password:
+                    return jsonify({"status": "error", "message": "Passwords do not match"})
+
+                # ✅ HASH PASSWORD PROPERLY
+                hashed_pw = generate_password_hash(password)
+
                 cursor.execute(
                     "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-                    (name, email, password)
+                    (name, email, hashed_pw)
                 )
+
                 conn.commit()
                 return jsonify({"status": "success"})
-            except sqlite3.IntegrityError:
-                return jsonify({"status": "error", "message": "Email already exists"})
 
-        elif action == 'login':
-            email = request.form.get('email')
-            password = request.form.get('password')
+            # ======================
+            # LOGIN
+            # ======================
+            elif action == 'login':
+                email = request.form.get('email')
+                password = request.form.get('password')
 
-            cursor.execute(
-                "SELECT * FROM users WHERE email=? AND password=?",
-                (email, password)
-            )
-            user = cursor.fetchone()
+                cursor.execute(
+                    "SELECT * FROM users WHERE email=?",
+                    (email,)
+                )
 
-            if user:
-                session['user'] = user['email']
-                return jsonify({"status": "success"})
-            return jsonify({"status": "error", "message": "Invalid credentials"})
+                user = cursor.fetchone()
+
+                if user and check_password_hash(user['password'], password):
+                    session['user'] = user['email']
+                    return jsonify({"status": "success"})
+
+                return jsonify({"status": "error", "message": "Invalid credentials"})
+
+        except Exception as e:
+            print("LOGIN ERROR:", e)
+            return jsonify({"status": "error", "message": str(e)})
+
+        finally:
+            if conn:
+                conn.close()
 
     return render_template('auth/login.html')
 

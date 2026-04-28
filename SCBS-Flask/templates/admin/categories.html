@@ -201,39 +201,7 @@ tbody tr:hover {
     font-size: 12px;
 }
 
-/* ACTION MENU */
-.action-container {
-    position: relative;
-}
 
-.action-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 35px;
-    background: #0f1722;
-    border: 1px solid #1f2a38;
-    border-radius: 8px;
-    width: 130px;
-}
-
-.action-menu button {
-    width: 100%;
-    padding: 8px;
-    background: none;
-    border: none;
-    color: #cfe8ff;
-    text-align: left;
-    cursor: pointer;
-}
-
-.action-menu button:hover {
-    background: rgba(0,229,255,0.1);
-}
-
-.action-menu button.delete {
-    color: #ff6b6b;
-}
 
 /* EMPTY STATE */
 .empty-state {
@@ -432,7 +400,7 @@ tbody tr:hover {
         <div style="display:flex; align-items:center; gap:10px;">
 
             <button class="action-btn" onclick="openCreateModal()">
-                + Create
+                + Add Category
             </button>
         </div>
 
@@ -447,26 +415,27 @@ tbody tr:hover {
 
     </div>
 
-    <!-- TABLE -->
-    <table class="category-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Category Name</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th style="text-align:center;">Action</th>
-            </tr>
-        </thead>
+<!-- TABLE -->
+<table class="category-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th style="text-align:center;">Action</th>
+        </tr>
+    </thead>
 
-        <tbody id="categoryTableBody">
-            <tr>
-                <td colspan="6" style="text-align:center;">
-                    Loading categories...
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <tbody id="categoryTableBody">
+        <!-- DATA WILL BE LOADED VIA loadCategories() -->
+        <tr>
+            <td colspan="5" style="text-align:center;">
+                Loading categories...
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 </div>
 
@@ -519,7 +488,7 @@ function loadCategories() {
         if (data.length === 0) {
             table.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align:center;">No categories found</td>
+                    <td colspan="5" style="text-align:center;">No categories found</td>
                 </tr>
             `;
             return;
@@ -532,16 +501,20 @@ function loadCategories() {
                     <td>${cat.name}</td>
                     <td>${cat.description ?? '-'}</td>
                     <td>${cat.status}</td>
-                    <td style="text-align:center;">
-                        <div class="action-container">
-                            <button class="action-btn" onclick="toggleActionMenu(${cat.id})">Action</button>
 
-                            <div class="action-menu" id="menu-${cat.id}">
-                                <button onclick="viewCategory(${cat.id})">View</button>
-                                <button onclick="editCategory(${cat.id})">Edit</button>
-                                <button class="delete" onclick="deleteCategory(${cat.id})">Delete</button>
-                            </div>
-                        </div>
+                    <!-- INLINE ACTION BUTTONS -->
+                    <td style="text-align:center; white-space:nowrap;">
+
+                        <button class="action-btn"
+                                onclick="editCategory(${cat.id})">
+                            Edit
+                        </button>
+
+                        <button class="action-btn" style="background:#ff6b6b; color:#fff;"
+                                onclick="deleteCategory(${cat.id})">
+                            Delete
+                        </button>
+
                     </td>
                 </tr>
             `;
@@ -549,7 +522,6 @@ function loadCategories() {
 
     });
 }
-
 // =============================
 // PAGE LOAD
 // =============================
@@ -621,26 +593,6 @@ document.getElementById("createCategoryForm").addEventListener("submit", functio
     });
 });
 
-// =============================
-// ACTION MENU
-// =============================
-function toggleActionMenu(id) {
-    document.querySelectorAll('.action-menu').forEach(menu => {
-        if (menu.id !== 'menu-' + id) menu.style.display = 'none';
-    });
-
-    let menu = document.getElementById('menu-' + id);
-    menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-}
-
-// CLOSE ACTION MENU
-window.addEventListener('click', function(e){
-    if (!e.target.closest('.action-container')) {
-        document.querySelectorAll('.action-menu').forEach(menu => {
-            menu.style.display = 'none';
-        });
-    }
-});
 
 // =============================
 // SEARCH

@@ -199,10 +199,7 @@ tbody tr:hover {
     font-size: 12px;
 }
 
-/* ACTION MENU */
-.action-container {
-    position: relative;
-}
+
 
 .action-menu {
     display: none;
@@ -261,6 +258,13 @@ tbody tr:hover {
 @media(max-width: 600px){
     .sidebar { display: none; }
     .main { margin-left: 0; }
+}
+
+.profile-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 </style>
 </head>
@@ -383,20 +387,33 @@ tbody tr:hover {
 
         <div class="table-container">
 
-            <div class="table-header">
-                <h4>User List</h4>
+            <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
 
+                <!-- LEFT -->
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="action-btn" onclick="addUser()">
+                        + Add User
+                    </button>
+                </div>
+
+                <!-- RIGHT -->
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="Search users...">
                 </div>
+
             </div>
 
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Profile</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -433,6 +450,7 @@ function loadUsers() {
     });
 }
 
+
 // ======================
 // RENDER TABLE
 // ======================
@@ -443,7 +461,7 @@ function renderTable(data) {
     if (data.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="4" style="text-align:center; color:#6b85a6;">
+                <td colspan="9" style="text-align:center; color:#6b85a6;">
                     No users found
                 </td>
             </tr>
@@ -452,27 +470,51 @@ function renderTable(data) {
     }
 
     data.forEach(user => {
+
+        const profileImg = user.profile_image 
+            ? user.profile_image 
+            : "/static/default.png";
+
         tbody.innerHTML += `
             <tr>
                 <td>${user.id}</td>
+
+                <!-- PROFILE -->
+                <td>
+                    <img src="${profileImg}" 
+                         style="width:35px; height:35px; border-radius:50%; object-fit:cover;">
+                </td>
+
                 <td>${user.name}</td>
                 <td>${user.email}</td>
-                <td>
-                    <div class="action-container">
-                        <button class="action-btn" onclick="toggleActionMenu(this)">Action</button>
+                <td>${user.address ?? '-'}</td>
+                <td>${user.phone ?? '-'}</td>
+                <td>${user.role ?? '-'}</td>
+                <td>${user.status ?? '-'}</td>
 
-                        <div class="action-menu">
-                            <button onclick="viewUser(${user.id})">View</button>
-                            <button onclick="editUser(${user.id})">Update</button>
-                            <button class="delete" onclick="deleteUser(${user.id})">Delete</button>
-                        </div>
-                    </div>
+                <!-- ACTION -->
+                <td style="text-align:center; white-space:nowrap;">
+
+                    <button class="action-btn" style="background:#4CAF50; color:#fff;"
+                            onclick="viewUser(${user.id})">
+                        View
+                    </button>
+
+                    <button class="action-btn"
+                            onclick="editUser(${user.id})">
+                        Edit
+                    </button>
+
+                    <button class="action-btn" style="background:#ff6b6b; color:#fff;"
+                            onclick="deleteUser(${user.id})">
+                        Delete
+                    </button>
+
                 </td>
             </tr>
         `;
     });
 }
-
 // ======================
 // VIEW USER (SWEETALERT)
 // ======================
@@ -489,6 +531,42 @@ function viewUser(id) {
             `,
             icon: 'info'
         });
+    });
+}
+
+
+function addUser() {
+    Swal.fire({
+        title: 'Add User',
+        html: `
+            <input id="add_name" class="swal2-input" placeholder="Name">
+            <input id="add_email" class="swal2-input" placeholder="Email">
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        preConfirm: () => {
+            return {
+                name: document.getElementById('add_name').value,
+                email: document.getElementById('add_email').value
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            fetch('/create_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(result.value)
+            })
+            .then(res => res.json())
+            .then(() => {
+                Swal.fire('Success', 'User added successfully', 'success');
+                loadUsers();
+            });
+
+        }
     });
 }
 
@@ -562,18 +640,6 @@ function deleteUser(id) {
     });
 }
 
-// ======================
-// TOGGLE ACTION MENU
-// ======================
-function toggleActionMenu(btn) {
-    const menu = btn.nextElementSibling;
-
-    document.querySelectorAll('.action-menu').forEach(m => {
-        if (m !== menu) m.style.display = 'none';
-    });
-
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-}
 
 // ======================
 // SEARCH

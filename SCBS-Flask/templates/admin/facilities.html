@@ -21,7 +21,7 @@ body {
     color: #e6f1ff;
 }
 
-/* SIDEBAR */
+/* SIDEBAR (UNCHANGED) */
 .sidebar {
     width: 230px;
     height: 100vh;
@@ -99,6 +99,7 @@ body {
     border-radius:8px;
     border:1px solid #1f2a38;
     width:150px;
+    z-index: 10;
 }
 
 #profileMenu a {
@@ -117,7 +118,74 @@ body {
     padding: 25px;
 }
 
-/* EMPTY STATE */
+/* TABLE */
+.table-container {
+    background: linear-gradient(145deg, #0f1117, #111827);
+    border: 1px solid #1f2a38;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.table-header h4 {
+    color: #00e5ff;
+}
+
+.search-box input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #1f2a38;
+    background: #0a0f1a;
+    color: #e6f1ff;
+}
+
+/* TABLE STYLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #0a1f2e;
+}
+
+th {
+    color: #00e5ff;
+    font-weight: 500;
+}
+
+th, td {
+    padding: 10px;
+    font-size: 13px;
+    text-align: left;
+}
+
+tbody tr {
+    border-top: 1px solid #1f2a38;
+}
+
+tbody tr:hover {
+    background: rgba(0, 229, 255, 0.08);
+}
+
+/* ACTION BUTTON */
+.action-btn {
+    background: linear-gradient(90deg, #00cfff, #00e5ff);
+    border: none;
+    color: #001018;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* EMPTY */
 .empty-state {
     background: linear-gradient(145deg, #0f1117, #111827);
     border: 1px solid #1f2a38;
@@ -141,7 +209,6 @@ body {
     color: #6b85a6;
 }
 
-/* RESPONSIVE */
 @media(max-width: 600px){
     .sidebar { display: none; }
     .main { margin-left: 0; }
@@ -210,6 +277,7 @@ body {
         class="{% if active_page == 'settings' %}active{% endif %}">
             <i class="fas fa-cog"></i> Settings
         </a>
+
     </div>
 
 </div>
@@ -221,9 +289,9 @@ body {
         <h3>Facilities</h3>
 
         <div class="user" style="position: relative;">
-            <img src="https://i.pravatar.cc/40" 
-                style="width:35px; height:35px; border-radius:50%; cursor:pointer;" 
-                onclick="toggleMenu()">
+            <img src="https://i.pravatar.cc/40"
+                 style="width:35px; height:35px; border-radius:50%; cursor:pointer;"
+                 onclick="toggleMenu()">
 
             <div id="profileMenu">
                 <a href="#">Profile</a>
@@ -233,16 +301,101 @@ body {
         </div>
     </div>
 
-    <div class="content">
+<div class="content">
 
-        <!-- Placeholder -->
-        <div class="empty-state">
-            <i class="fas fa-building"></i>
-            <h3>No Facilities Yet</h3>
-            <p>Facilities will appear here once added.</p>
+    {% if facilities and facilities|length > 0 %}
+
+    <div class="table-container">
+
+        <!-- HEADER -->
+        <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
+
+            <!-- LEFT: TITLE + CREATE -->
+            <div style="display:flex; align-items:center; gap:10px;">
+
+                <button class="action-btn" onclick="openCreateModal()">
+                    + Add Facility
+                </button>
+
+            </div>
+
+            <!-- RIGHT: SEARCH -->
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchCategory" 
+                    placeholder="Search facility..." 
+                    onkeyup="searchFacility()">
+            </div>
+
         </div>
 
+        <!-- TABLE -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for f in facilities %}
+                <tr>
+                    <td>{{ f.id }}</td>
+                    <td>{{ f.date_created }}</td>
+                    <td>{{ f.category }}</td>
+                    <td>{{ f.name }}</td>
+                    <td>{{ f.description }}</td>
+                    <td>{{ f.status }}</td>
+
+                    <!-- ACTION BUTTONS -->
+                    <td style="text-align:center;">
+
+                        <button class="action-btn" style="background:#4CAF50; color:#fff;"
+                            onclick="viewFacility('{{ f.id }}')">
+                            View
+                        </button>
+                        <button class="action-btn" onclick="editFacility('{{ f.id }}')">
+                            Edit
+                        </button>
+
+                        <button class="action-btn" style="background:#ff6b6b; color:#fff;" onclick="deleteFacility('{{ f.id }}')">
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
     </div>
+
+    {% else %}
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state">
+        <i class="fas fa-building"></i>
+        <h3>No Facilities Yet</h3>
+        <p>Facilities will appear here once added.</p>
+
+        <br>
+
+        <button class="action-btn" onclick="openCreateModal()">
+            + Create Facility
+        </button>
+    </div>
+
+    {% endif %}
+
+</div>
 
     <div class="footer">
         © 2026 Sports Complex Booking System
@@ -261,6 +414,14 @@ window.onclick = function(e) {
         document.getElementById("profileMenu").style.display = "none";
     }
 }
+
+/* SEARCH */
+document.querySelector(".search-box input").addEventListener("keyup", function () {
+    let filter = this.value.toLowerCase();
+    document.querySelectorAll("tbody tr").forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+    });
+});
 </script>
 
 </body>

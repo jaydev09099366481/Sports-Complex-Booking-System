@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash
 
 # Create Blueprint
 fetch_user = Blueprint('fetch_user', __name__)
@@ -8,6 +9,7 @@ fetch_user = Blueprint('fetch_user', __name__)
 # Database path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
+
 
 # ======================
 # GET ALL USERS
@@ -18,9 +20,22 @@ def get_users():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, name, email FROM users")
-    users = cursor.fetchall()
+    cursor.execute("""
+        SELECT 
+            id, 
+            name, 
+            email, 
+            phone,
+            address,
+            role,
+            status,
+            profile_image,
+            date_created
+        FROM users
+        ORDER BY id DESC
+    """)
 
+    users = cursor.fetchall()
     conn.close()
 
     return jsonify([dict(user) for user in users])
@@ -37,7 +52,6 @@ def get_user(id):
 
     cursor.execute("SELECT * FROM users WHERE id=?", (id,))
     user = cursor.fetchone()
-
     conn.close()
 
     if user:
@@ -46,27 +60,72 @@ def get_user(id):
 
 
 # ======================
-# UPDATE USER
+# CREATE USER
 # ======================
-@fetch_user.route('/update_user/<int:id>', methods=['POST'])
-def update_user(id):
-    from flask import request
-
+@fetch_user.route('/create_user', methods=['POST'])
+def create_user():
     data = request.get_json()
+
     name = data.get('name')
     email = data.get('email')
+    password = data.get('password', '123456')
+    phone = data.get('phone')
+    address = data.get('address')
+    role = data.get('role', 'user')
+    status = data.get('status', 'active')
+    profile_image = data.get('profile_image', '/static/default.png')
+
+    hashed_password = generate_password_hash(password)
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE users SET name=?, email=? WHERE id=?",
-        (name, email, id)
-    )
+    try:
+        cursor.execute("""
+            INSERT INTO users 
+            (name, email, password, phone, address, role, status, profile_image)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, email, hashed_password, phone, address, role, status, profile_image))
+
+        conn.commit()
+
+    except sqlite3.IntegrityError:
+        return jsonify({"status": "error", "message": "Email already exists"})
+
+    finally:
+        conn.close()
+
+    return jsonify({"status": "success", "message": "User created successfully"})
+
+
+# ======================
+# UPDATE USER
+# ======================
+@fetch_user.route('/update_user/<int:id>', methods=['POST'])
+def update_user(id):
+    data = request.get_json()
+
+    name = data.get('name')
+    email = data.get('email')
+    phone = data.get('phone')
+    address = data.get('address')
+    role = data.get('role')
+    status = data.get('status')
+    profile_image = data.get('profile_image')
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE users 
+        SET name=?, email=?, phone=?, address=?, role=?, status=?, profile_image=?
+        WHERE id=?
+    """, (name, email, phone, address, role, status, profile_image, id))
+
     conn.commit()
     conn.close()
 
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success", "message": "User updated successfully"})
 
 
 # ======================
@@ -81,4 +140,4 @@ def delete_user(id):
     conn.commit()
     conn.close()
 
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success", "message": "User deleted successfully"})

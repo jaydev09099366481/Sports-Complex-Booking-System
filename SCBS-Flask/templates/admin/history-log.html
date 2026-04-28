@@ -271,56 +271,53 @@ tbody tr:hover {
 
     <div class="content">
 
-        {% if history_logs and history_logs|length > 0 %}
+    {% if history_logs and history_logs|length > 0 %}
 
-        <div class="table-container">
+    <div class="table-container">
 
-            <div class="table-header">
-                <h4>History Records</h4>
+        <div class="table-header">
+            <h4>History Records</h4>
 
-                <div class="search-box">
-                    <input type="text" placeholder="Search history...">
-                </div>
+            <div class="search-box">
+                <input type="text" placeholder="Search history...">
             </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Action</th>
-                        <th>Table</th>
-                        <th>Record ID</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for log in history_logs %}
-                    <tr>
-                        <td>{{ log.id }}</td>
-                        <td>{{ log.action }}</td>
-                        <td>{{ log.table_name }}</td>
-                        <td>{{ log.record_id }}</td>
-                        <td>{{ log.description }}</td>
-                        <td>{{ log.created_at }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
 
-        {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
 
-        <div class="empty-state">
-            <i class="fas fa-history"></i>
-            <h3>No History Yet</h3>
-            <p>History logs will appear here once activities are recorded.</p>
-        </div>
-
-        {% endif %}
+            <tbody>
+                {% for log in history_logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.created_at }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
     </div>
+
+    {% else %}
+
+    <div class="empty-state">
+        <i class="fas fa-history"></i>
+        <h3>No History Yet</h3>
+        <p>History logs will appear here once activities are recorded.</p>
+    </div>
+
+    {% endif %}
+
+</div>
 
     <div class="footer">
         © 2026 Sports Complex Booking System

@@ -50,6 +50,7 @@ def init_db():
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         phone TEXT,
+        address TEXT,
         role TEXT DEFAULT 'user',              -- admin / user
         status TEXT DEFAULT 'active',          -- active / inactive / banned
         date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

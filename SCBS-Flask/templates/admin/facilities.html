@@ -7,6 +7,8 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
 * {
     margin: 0;
@@ -213,6 +215,80 @@ tbody tr:hover {
     .sidebar { display: none; }
     .main { margin-left: 0; }
 }
+
+.modal {
+    display: none;
+    position: absolute; /* CHANGE from fixed → absolute */
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh; /* allow it to grow with page */
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+
+    /* allow page scroll */
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #0f1722, #111827);
+    border: 1px solid #1f2a38;
+    width: 420px;
+    margin: 8% auto;
+    padding: 25px;
+    border-radius: 12px;
+    color: #e6f1ff;
+    box-shadow: 0 0 20px rgba(0,229,255,0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+    color: #00e5ff;
+}
+
+.modal-content label {
+    font-size: 13px;
+    color: #9fb3c8;
+}
+
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #1f2a38;
+    background: #0a0f1a;
+    color: #e6f1ff;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus,
+.modal-content select:focus {
+    border-color: #00e5ff;
+    box-shadow: 0 0 6px rgba(0,229,255,0.3);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(90deg, #00cfff, #00e5ff);
+    border: none;
+    border-radius: 6px;
+    color: #001018;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close {
+    float: right;
+    font-size: 18px;
+    cursor: pointer;
+}
+
 </style>
 </head>
 
@@ -335,37 +411,62 @@ tbody tr:hover {
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Date</th>
+                    <th>Image</th>
                     <th>Category</th>
                     <th>Name</th>
                     <th>Description</th>
+                    <th>Capacity</th>
+                    <th>Price/hr</th>
                     <th>Status</th>
                     <th style="text-align:center;">Action</th>
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="facilityTableBody">
                 {% for f in facilities %}
                 <tr>
                     <td>{{ f.id }}</td>
-                    <td>{{ f.date_created }}</td>
-                    <td>{{ f.category }}</td>
+
+                    <!-- IMAGE -->
+                    <td>
+                        {% if f.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + f.image) }}"
+                                style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <!-- CATEGORY NAME FROM JOIN -->
+                    <td>{{ f.category_name or '-' }}</td>
+
                     <td>{{ f.name }}</td>
-                    <td>{{ f.description }}</td>
+
+                    <td>{{ f.description or '-' }}</td>
+
+                    <td>{{ f.capacity or '-' }}</td>
+
+                    <td>
+                        {% if f.price_per_hour %}
+                            ₱{{ "%.2f"|format(f.price_per_hour) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
                     <td>{{ f.status }}</td>
 
                     <!-- ACTION BUTTONS -->
-                    <td style="text-align:center;">
+                    <td style="text-align:center; white-space:nowrap;">
 
-                        <button class="action-btn" style="background:#4CAF50; color:#fff;"
-                            onclick="viewFacility('{{ f.id }}')">
-                            View
-                        </button>
-                        <button class="action-btn" onclick="editFacility('{{ f.id }}')">
+                        <button class="action-btn"
+                                onclick="editFacility('{{ f.id }}')">
                             Edit
                         </button>
 
-                        <button class="action-btn" style="background:#ff6b6b; color:#fff;" onclick="deleteFacility('{{ f.id }}')">
+                        <button class="action-btn"
+                                style="background:#ff6b6b; color:#fff;"
+                                onclick="deleteFacility('{{ f.id }}')">
                             Delete
                         </button>
 
@@ -401,27 +502,343 @@ tbody tr:hover {
         © 2026 Sports Complex Booking System
     </div>
 
+    <!-- FACILITY MODAL -->
+<div id="facilityModal" class="modal">
+    <div class="modal-content">
+
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h3 id="modalTitle">Add Facility</h3>
+
+        <form id="facilityForm" enctype="multipart/form-data">
+
+            <input type="hidden" id="facilityId">
+
+            <label>Category *</label>
+            <select id="facilityCategory" required>
+                <option value="">Select Category</option>
+                {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Name *</label>
+            <input type="text" id="facilityName" required>
+
+            <label>Description</label>
+            <textarea id="facilityDescription"></textarea>
+
+            <!-- ✅ UPDATED IMAGE INPUT -->
+            <label>Image *</label>
+            <input 
+                type="file" 
+                id="facilityImage" 
+                accept="image/*" 
+            >
+
+            <!-- OPTIONAL: IMAGE PREVIEW -->
+            <img id="imagePreview" style="margin-top:10px; max-width:100%; display:none; border-radius:8px;" />
+
+            <label>Capacity</label>
+            <input type="number" id="facilityCapacity">
+
+            <label>Price per hour</label>
+            <input type="number" id="facilityPrice">
+
+            <label>Status</label>
+            <select id="facilityStatus">
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+                <option value="Maintenance">Maintenance</option>
+            </select>
+
+            <button type="submit" class="submit-btn">Save</button>
+
+        </form>
+    </div>
+</div>
+
+
 </div>
 
 <script>
-function toggleMenu() {
-    var menu = document.getElementById("profileMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+
+// =============================
+// LOAD FACILITIES
+// =============================
+function loadFacilities() {
+    fetch("/facilities_data")
+    .then(res => res.json())
+    .then(data => {
+
+        const table = document.getElementById("facilityTableBody");
+        table.innerHTML = "";
+
+        if (data.length === 0) {
+            table.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align:center;">No facilities found</td>
+                </tr>
+            `;
+            return;
+        }
+
+        data.forEach(f => {
+            table.innerHTML += `
+                <tr>
+                    <td>${f.id}</td>
+                    <td>
+                        ${f.image ? `<img src="/static/uploads/${f.image}" 
+                            style="width:50px;height:50px;border-radius:6px;">` : '-'}
+                    </td>
+
+                    <td>${f.category_name || '-'}</td>
+                    <td>${f.name}</td>
+                    <td>${f.description || '-'}</td>
+                    <td>${f.capacity || '-'}</td>
+                    <td>${f.price_per_hour ? '₱' + f.price_per_hour : '-'}</td>
+                    <td>${f.status}</td>
+
+                    <td style="white-space:nowrap; text-align:center;">
+
+                        <button class="action-btn"
+                            onclick="openEditModal(${f.id})">
+                            Edit
+                        </button>
+
+                        <button class="action-btn"
+                            style="background:#ff6b6b;color:#fff;"
+                            onclick="deleteFacility(${f.id})">
+                            Delete
+                        </button>
+
+                    </td>
+                </tr>
+            `;
+        });
+
+    });
 }
 
-window.onclick = function(e) {
-    if (!e.target.closest('.user')) {
-        document.getElementById("profileMenu").style.display = "none";
+
+// =============================
+// PAGE LOAD
+// =============================
+window.onload = function() {
+    loadFacilities();
+};
+
+
+// =============================
+// MODAL CONTROL
+// =============================
+function openCreateModal() {
+    document.getElementById("modalTitle").innerText = "Add Facility";
+    document.getElementById("facilityForm").reset();
+    document.getElementById("facilityId").value = "";
+    document.getElementById("imagePreview").style.display = "none";
+    document.getElementById("facilityModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("facilityModal").style.display = "none";
+}
+
+
+// =============================
+// OPEN EDIT MODAL
+// =============================
+function openEditModal(id) {
+
+    fetch(`/get_facility/${id}`)
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("modalTitle").innerText = "Edit Facility";
+
+        document.getElementById("facilityId").value = data.id;
+        document.getElementById("facilityCategory").value = data.category_id;
+        document.getElementById("facilityName").value = data.name;
+        document.getElementById("facilityDescription").value = data.description || "";
+        document.getElementById("facilityCapacity").value = data.capacity || "";
+        document.getElementById("facilityPrice").value = data.price_per_hour || "";
+        document.getElementById("facilityStatus").value = data.status;
+
+        // ❌ DO NOT set file input value (browser restriction)
+        document.getElementById("facilityImage").value = "";
+
+        // show existing image
+        if (data.image) {
+            document.getElementById("imagePreview").src = "/static/uploads/" + data.image;
+            document.getElementById("imagePreview").style.display = "block";
+        } else {
+            document.getElementById("imagePreview").style.display = "none";
+        }
+
+        document.getElementById("facilityModal").style.display = "block";
+
+    });
+}
+
+function editFacility(id) {
+
+    fetch(`/get_facility/${id}`)
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("modalTitle").innerText = "Edit Facility";
+
+        document.getElementById("facilityId").value = data.id;
+        document.getElementById("facilityCategory").value = data.category_id;
+        document.getElementById("facilityName").value = data.name;
+        document.getElementById("facilityDescription").value = data.description || "";
+        document.getElementById("facilityCapacity").value = data.capacity || "";
+        document.getElementById("facilityPrice").value = data.price_per_hour || "";
+        document.getElementById("facilityStatus").value = data.status;
+
+        // reset file input (cannot set file value)
+        document.getElementById("facilityImage").value = "";
+
+        // preview image
+        const preview = document.getElementById("imagePreview");
+
+        if (data.image) {
+            preview.src = "/static/uploads/" + data.image;
+            preview.style.display = "block";
+        } else {
+            preview.style.display = "none";
+        }
+
+        document.getElementById("facilityModal").style.display = "block";
+    });
+}
+
+// =============================
+// CLOSE MODAL
+// =============================
+function closeModal() {
+    document.getElementById("facilityModal").style.display = "none";
+}
+
+
+// =============================
+// SAVE (CREATE + UPDATE) - FIXED WITH FORMDATA
+// =============================
+document.getElementById("facilityForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("facilityId").value;
+    const fileInput = document.getElementById("facilityImage");
+
+    const formData = new FormData();
+
+    formData.append("category_id", document.getElementById("facilityCategory").value);
+    formData.append("name", document.getElementById("facilityName").value);
+    formData.append("description", document.getElementById("facilityDescription").value);
+    formData.append("capacity", document.getElementById("facilityCapacity").value);
+    formData.append("price_per_hour", document.getElementById("facilityPrice").value);
+    formData.append("status", document.getElementById("facilityStatus").value);
+
+    if (fileInput.files.length > 0) {
+        formData.append("image", fileInput.files[0]);
     }
-}
 
-/* SEARCH */
-document.querySelector(".search-box input").addEventListener("keyup", function () {
-    let filter = this.value.toLowerCase();
-    document.querySelectorAll("tbody tr").forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+    let url = id ? `/update_facility/${id}` : "/create_facility";
+
+    fetch(url, {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+
+        Swal.fire({
+            title: "Success!",
+            text: res.message,
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        closeModal();
+
+        // ✅ IMPORTANT: reload page to refresh table
+        setTimeout(() => {
+            location.reload();
+        }, 800);
+
+    })
+    .catch(err => {
+        Swal.fire("Error", "Something went wrong!", "error");
+        console.error(err);
     });
 });
+
+// =============================
+// DELETE (WORKING)
+// =============================
+function deleteFacility(id) {
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This facility will be permanently deleted.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ff6b6b",
+        cancelButtonColor: "#6b85a6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            fetch(`/delete_facility/${id}`, {
+                method: "POST"
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                Swal.fire({
+                    title: "Deleted!",
+                    text: data.message,
+                    icon: "success",
+                    timer: 1200,
+                    showConfirmButton: false
+                }).then(() => {
+                    // ✅ reload page after SweetAlert closes
+                    location.reload();
+                });
+
+            });
+
+        }
+    });
+}
+// =============================
+// SEARCH
+// =============================
+function searchFacility() {
+    let input = document.getElementById("searchCategory").value.toLowerCase();
+    let rows = document.querySelectorAll("#facilityTableBody tr");
+
+    rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+    });
+}
+
+
+// =============================
+// IMAGE PREVIEW
+// =============================
+document.getElementById("facilityImage").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById("imagePreview");
+
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    }
+});
+
 </script>
 
 </body>

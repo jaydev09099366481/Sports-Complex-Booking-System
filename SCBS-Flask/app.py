@@ -77,16 +77,20 @@ def init_db():
     """)
 
     # ======================
-    # FACILITIES TABLE (NEW)
+    # FACILITIES TABLE (UPDATED)
     # ======================
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS facilities (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        category TEXT NOT NULL,
+        category_id INTEGER NOT NULL,  -- 🔗 FK to categories
         name TEXT NOT NULL,
         description TEXT,
-        status TEXT DEFAULT 'Available'
+        image TEXT,                    -- 📷 store filename or path
+        capacity INTEGER,              -- 👥 max number of users
+        price_per_hour REAL,           -- 💰 optional pricing
+        status TEXT DEFAULT 'Available',
+        FOREIGN KEY (category_id) REFERENCES categories(id)
     )
     """)
 
@@ -280,6 +284,7 @@ def contact():
     conn.commit()
 
     return jsonify({"status": "success"})
+
 
 # ======================
 # LOGOUT

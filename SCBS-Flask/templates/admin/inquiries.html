@@ -246,6 +246,41 @@ tbody tr:hover {
     .main { margin-left: 0; }
 }
 
+
+/* PAGINATION */
+.pagination {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;   /* centers horizontally */
+    align-items: center;
+    gap: 6px;                  /* replaces margin spacing */
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    background: none;
+    border: 1px solid #1f2a38;
+    color: #cfe8ff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagination button:hover {
+    background: rgba(0,229,255,0.15);
+}
+
+.pagination button.active {
+    background: #00e5ff;
+    color: #001018;
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -306,68 +341,108 @@ tbody tr:hover {
 
     <div class="content">
 
-        <div class="table-container">
+    <div class="table-container">
 
-            <div class="table-header">
-                <h4>Inquiry List</h4>
+        <div class="table-header">
 
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search Inquiries">
-                </div>
+            <!-- LEFT SIDE: FILTER -->
+            <div style="display:flex; align-items:center; gap:12px;">
+
+                <select id="statusFilter"
+                        style="padding:6px 10px; border-radius:6px;
+                        background:#0a0f1a; color:#e6f1ff;
+                        border:1px solid #1f2a38;
+                        outline:none; cursor:pointer;">
+
+                    <option value="all">All</option>
+                    <option value="unread">Unread</option>
+                    <option value="read">Read</option>
+
+                </select>
+
             </div>
 
-            <table id="inquiryTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Message</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for inquiry in inquiries %}
-                    <tr>
-                        <td>{{ inquiry.id }}</td>
-                        <td>{{ inquiry.name }}</td>
-                        <td>{{ inquiry.email }}</td>
-                        <td>{{ inquiry.message }}</td>
-
-                        <!-- INLINE ACTION BUTTONS -->
-                        <td style="text-align:center; white-space:nowrap;">
-
-                            <button class="action-btn"
-                                    onclick="viewInquiry('{{ inquiry.id }}')">
-                                View
-                            </button>
-
-                            <button class="action-btn"
-                                    onclick="updateInquiry('{{ inquiry.id }}')">
-                                Update
-                            </button>
-
-                            <button class="action-btn"
-                                    onclick="toggleRead('{{ inquiry.id }}', '{{ inquiry.status }}')">
-                                {{ 'Mark Unread' if inquiry.status == 'read' else 'Mark Read' }}
-                            </button>
-
-                            <button class="action-btn"
-                                    style="background:#ff6b6b; color:#fff;"
-                                    onclick="deleteInquiry('{{ inquiry.id }}')">
-                                Delete
-                            </button>
-
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- RIGHT SIDE: SEARCH -->
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search Inquiries">
+            </div>
 
         </div>
 
+        <table id="inquiryTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Message</th>
+                    <th>Remarks</th>
+                    <th>Status</th>
+                    <th style="text-align:center;">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for inquiry in inquiries %}
+                <tr class="inquiry-row">
+
+                    <td>{{ inquiry.id }}</td>
+
+                    <td>{{ inquiry.created_at if inquiry.created_at else '—' }}</td>
+
+                    <td>{{ inquiry.name }}</td>
+
+                    <td>{{ inquiry.email }}</td>
+
+                    <td style="max-width:220px;">
+                        {{ inquiry.message[:50] }}{% if inquiry.message|length > 50 %}...{% endif %}
+                    </td>
+
+                    <td>
+                        {{ inquiry.remarks if inquiry.remarks else '—' }}
+                    </td>
+
+                    <td>
+                        {% if inquiry.status == 'read' %}
+                            <span style="color:#00e5ff;">Read</span>
+                        {% else %}
+                            <span style="color:#ffcc00;">Unread</span>
+                        {% endif %}
+                    </td>
+
+                    <td style="text-align:center; white-space:nowrap;">
+
+                        <button class="action-btn" onclick="viewInquiry('{{ inquiry.id }}')">
+                            View
+                        </button>
+
+                        <button class="action-btn" onclick="updateInquiry('{{ inquiry.id }}')">
+                            Update
+                        </button>
+
+                        <button class="action-btn"
+                                style="background:#ff6b6b; color:#fff;"
+                                onclick="deleteInquiry('{{ inquiry.id }}')">
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
     </div>
 
+</div>
+
+<!-- PAGINATION (OUTSIDE TABLE CONTAINER) -->
+<div class="pagination" id="pagination"></div>
+
+<br>
     <div class="footer">
         © 2026 Sports Complex Booking System
     </div>
@@ -380,22 +455,135 @@ function toggleMenu() {
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
 }
 
-function toggleAction(btn) {
-    let menu = btn.nextElementSibling;
-
-    document.querySelectorAll('.action-menu').forEach(m => {
-        if (m !== menu) m.style.display = 'none';
-    });
-
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-}
-
 // CLOSE ON CLICK OUTSIDE
 window.onclick = function(e) {
     if (!e.target.closest('.user')) {
         document.getElementById("profileMenu").style.display = "none";
     }
+};
+
+// ======================
+// STATE (IMPORTANT FIX)
+// ======================
+let currentPage = 1;
+const rowsPerPage = 5;
+
+const table = document.getElementById("inquiryTable");
+const tbody = table.querySelector("tbody");
+const rows = Array.from(tbody.querySelectorAll("tr"));
+
+const pagination = document.getElementById("pagination");
+
+let searchValue = "";
+let statusValue = "all";
+
+// ======================
+// APPLY FILTERS + PAGINATION
+// ======================
+function getFilteredRows() {
+    return rows.filter(row => {
+
+        const text = row.innerText.toLowerCase();
+        const statusCell = row.querySelector("td:nth-child(7)").innerText.toLowerCase();
+
+        const matchSearch = text.includes(searchValue);
+        const matchStatus = (statusValue === "all") || statusCell.includes(statusValue);
+
+        return matchSearch && matchStatus;
+    });
 }
+
+// ======================
+// RENDER TABLE
+// ======================
+function renderTable() {
+
+    const filtered = getFilteredRows();
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    rows.forEach(row => row.style.display = "none");
+
+    filtered.slice(start, end).forEach(row => {
+        row.style.display = "";
+    });
+
+    renderPagination(filtered.length);
+}
+
+// ======================
+// PAGINATION
+// ======================
+function renderPagination(totalRows) {
+
+    pagination.innerHTML = "";
+
+    const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+    if (currentPage > totalPages) currentPage = 1;
+
+    // PREV
+    const prev = document.createElement("button");
+    prev.innerHTML = "&lt;";
+    prev.disabled = currentPage === 1;
+
+    prev.onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    };
+
+    pagination.appendChild(prev);
+
+    // NUMBERS
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+
+        if (i === currentPage) btn.classList.add("active");
+
+        btn.onclick = () => {
+            currentPage = i;
+            renderTable();
+        };
+
+        pagination.appendChild(btn);
+    }
+
+    // NEXT
+    const next = document.createElement("button");
+    next.innerHTML = "&gt;";
+    next.disabled = currentPage === totalPages;
+
+    next.onclick = () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+        }
+    };
+
+    pagination.appendChild(next);
+}
+
+// ======================
+// SEARCH (FIXED)
+// ======================
+document.getElementById("searchInput").addEventListener("keyup", function() {
+    searchValue = this.value.toLowerCase();
+    currentPage = 1;
+    renderTable();
+});
+
+// ======================
+// STATUS FILTER (FIXED)
+// ======================
+document.getElementById("statusFilter").addEventListener("change", function () {
+    statusValue = this.value.toLowerCase();
+    currentPage = 1;
+    renderTable();
+});
 
 // ======================
 // VIEW INQUIRY
@@ -405,23 +593,24 @@ function viewInquiry(id) {
     .then(res => res.json())
     .then(data => {
 
-        // mark as READ when viewed
-        markAsRead(id);
-
         Swal.fire({
             title: "Inquiry Details",
             html: `
                 <b>Name:</b> ${data.name}<br>
                 <b>Email:</b> ${data.email}<br><br>
-                <b>Message:</b><br>${data.message}
+                <b>Message:</b><br>${data.message}<br><br>
+                <b>Status:</b> ${data.status}<br>
+                <b>Remarks:</b> ${data.remarks || "—"}
             `,
             icon: "info"
-        });
+        })
+        .then(() => location.reload());
+
     });
 }
 
 // ======================
-// UPDATE INQUIRY
+// UPDATE REMARKS
 // ======================
 function updateInquiry(id) {
     fetch(`/get_inquiry/${id}`)
@@ -429,36 +618,25 @@ function updateInquiry(id) {
     .then(data => {
 
         Swal.fire({
-            title: "Update Inquiry",
-            html: `
-                <input id="name" class="swal2-input" value="${data.name}" placeholder="Name">
-                <input id="email" class="swal2-input" value="${data.email}" placeholder="Email">
-                <textarea id="message" class="swal2-textarea">${data.message}</textarea>
-            `,
+            title: "Update Remarks",
+            input: "textarea",
+            inputValue: data.remarks || "",
+            inputPlaceholder: "Enter remarks...",
             showCancelButton: true,
-            confirmButtonText: "Save",
-            preConfirm: () => {
-                return {
-                    name: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    message: document.getElementById('message').value
-                }
-            }
+            confirmButtonText: "Save"
         }).then((result) => {
             if (result.isConfirmed) {
 
                 fetch(`/update_inquiry/${id}`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(result.value)
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ remarks: result.value })
                 })
-                .then(res => res.json())
                 .then(() => {
-                    Swal.fire("Updated!", "Inquiry updated successfully", "success")
+                    Swal.fire("Updated!", "Remarks saved", "success")
                     .then(() => location.reload());
                 });
+
             }
         });
 
@@ -466,68 +644,30 @@ function updateInquiry(id) {
 }
 
 // ======================
-// DELETE INQUIRY
+// DELETE
 // ======================
 function deleteInquiry(id) {
     Swal.fire({
-        title: "Are you sure?",
-        text: "This inquiry will be deleted!",
+        title: "Delete inquiry?",
+        text: "This cannot be undone!",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Yes, delete it!"
+        confirmButtonText: "Yes"
     }).then((result) => {
         if (result.isConfirmed) {
 
-            fetch(`/delete_inquiry/${id}`, {
-                method: "POST"
-            })
+            fetch(`/delete_inquiry/${id}`, { method: "POST" })
             .then(() => {
-                Swal.fire("Deleted!", "Inquiry removed successfully", "success")
+                Swal.fire("Deleted!", "", "success")
                 .then(() => location.reload());
             });
+
         }
     });
 }
 
-// ======================
-// MARK AS READ / UNREAD
-// ======================
-
-// auto mark as read
-function markAsRead(id) {
-    fetch(`/mark_inquiry_read/${id}`, {
-        method: "POST"
-    });
-}
-
-// toggle read/unread manually
-function toggleRead(id, currentStatus) {
-    let newStatus = currentStatus === "read" ? "unread" : "read";
-
-    fetch(`/toggle_inquiry_status/${id}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ status: newStatus })
-    })
-    .then(() => {
-        Swal.fire("Updated!", "Status changed to " + newStatus, "success")
-        .then(() => location.reload());
-    });
-}
-
-// ======================
-// SEARCH
-// ======================
-document.getElementById("searchInput").addEventListener("keyup", function() {
-    let value = this.value.toLowerCase();
-    let rows = document.querySelectorAll("#inquiryTable tbody tr");
-
-    rows.forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
-    });
-});
+// INIT
+renderTable();
 </script>
 
 </body>

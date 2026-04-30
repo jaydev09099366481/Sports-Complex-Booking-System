@@ -217,6 +217,42 @@ tbody tr:hover {
     .sidebar { display: none; }
     .main { margin-left: 0; }
 }
+
+/* PAGINATION */
+.pagination {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;   /* centers horizontally */
+    align-items: center;
+    gap: 6px;                  /* replaces margin spacing */
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    background: none;
+    border: 1px solid #1f2a38;
+    color: #cfe8ff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagination button:hover {
+    background: rgba(0,229,255,0.15);
+}
+
+.pagination button.active {
+    background: #00e5ff;
+    color: #001018;
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 </style>
 </head>
 
@@ -269,60 +305,62 @@ tbody tr:hover {
         </div>
     </div>
 
-    <div class="content">
+<div class="content">
 
-    {% if history_logs and history_logs|length > 0 %}
+{% if history_logs and history_logs|length > 0 %}
 
-    <div class="table-container">
+<div class="table-container">
 
-        <div class="table-header">
-            <h4>History Records</h4>
+    <div class="table-header">
+        <h4>History Records</h4>
 
-            <div class="search-box">
-                <input type="text" placeholder="Search history...">
-            </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search history...">
         </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Action</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for log in history_logs %}
-                <tr>
-                    <td>{{ log.id }}</td>
-
-                    <!-- Split date & time -->
-                    {% set dt = log.created_at.split(" ") %}
-
-                    <td>{{ dt[0] }}</td>
-                    <td>{{ dt[1] if dt|length > 1 else "" }}</td>
-
-                    <td>{{ log.action }}</td>
-                    <td>{{ log.description }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
     </div>
 
-    {% else %}
+    <table id="historyTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Description</th>
+            </tr>
+        </thead>
 
-    <div class="empty-state">
-        <i class="fas fa-history"></i>
-        <h3>No History Yet</h3>
-        <p>History logs will appear here once activities are recorded.</p>
-    </div>
+        <tbody id="historyTableBody">
+            {% for log in history_logs %}
+            <tr>
+                <td>{{ log.id }}</td>
 
-    {% endif %}
+                {% set dt = log.created_at.split(" ") %}
+
+                <td>{{ dt[0] }}</td>
+                <td>{{ dt[1] if dt|length > 1 else "" }}</td>
+
+                <td>{{ log.action }}</td>
+                <td>{{ log.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<!-- ✅ PAGINATION OUTSIDE CONTAINER -->
+<div class="pagination" id="pagination"></div>
+
+{% else %}
+
+<div class="empty-state">
+    <i class="fas fa-history"></i>
+    <h3>No History Yet</h3>
+    <p>History logs will appear here once activities are recorded.</p>
+</div>
+
+{% endif %}
 
 </div>
 
@@ -333,39 +371,97 @@ tbody tr:hover {
 </div>
 
 <script>
-function toggleMenu() {
-    var menu = document.getElementById("profileMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
+let rowsPerPage = 6;
+let currentPage = 1;
+
+const table = document.getElementById("historyTableBody");
+const searchInput = document.getElementById("searchInput");
+const pagination = document.getElementById("pagination");
+
+let allRows = Array.from(table.querySelectorAll("tr"));
+let filteredRows = [...allRows];
+
+// ======================
+// RENDER TABLE PAGE
+// ======================
+function renderTable() {
+    table.innerHTML = "";
+
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+
+    let pageRows = filteredRows.slice(start, end);
+
+    pageRows.forEach(row => table.appendChild(row));
+
+    renderPagination();
 }
 
-window.onclick = function(e) {
-    if (!e.target.closest('.user')) {
-        document.getElementById("profileMenu").style.display = "none";
+// ======================
+// PAGINATION UI
+// ======================
+function renderPagination() {
+    pagination.innerHTML = "";
+
+    let totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+
+    if (totalPages <= 1) return;
+
+    // PREV
+    pagination.innerHTML += `
+        <button onclick="changePage(${currentPage - 1})" 
+        ${currentPage === 1 ? "disabled" : ""}>
+        &lt;
+        </button>
+    `;
+
+    // PAGES
+    for (let i = 1; i <= totalPages; i++) {
+        pagination.innerHTML += `
+            <button class="${i === currentPage ? 'active' : ''}"
+                    onclick="changePage(${i})">
+                ${i}
+            </button>
+        `;
     }
+
+    // NEXT
+    pagination.innerHTML += `
+        <button onclick="changePage(${currentPage + 1})"
+        ${currentPage === totalPages ? "disabled" : ""}>
+        &gt;
+        </button>
+    `;
 }
 
+// ======================
+// CHANGE PAGE
+// ======================
+function changePage(page) {
+    let totalPages = Math.ceil(filteredRows.length / rowsPerPage);
 
-/* =========================
-   LIVE SEARCH FUNCTION
-========================= */
-const searchInput = document.querySelector(".search-box input");
+    if (page < 1 || page > totalPages) return;
 
-if (searchInput) {
-    searchInput.addEventListener("keyup", function () {
-        let filter = this.value.toLowerCase();
-        let rows = document.querySelectorAll("tbody tr");
-
-        rows.forEach(row => {
-            let text = row.textContent.toLowerCase();
-
-            if (text.includes(filter)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        });
-    });
+    currentPage = page;
+    renderTable();
 }
+
+// ======================
+// SEARCH (FIXED WITH PAGINATION)
+// ======================
+searchInput.addEventListener("keyup", function () {
+    let value = this.value.toLowerCase();
+
+    filteredRows = allRows.filter(row =>
+        row.textContent.toLowerCase().includes(value)
+    );
+
+    currentPage = 1;
+    renderTable();
+});
+
+// INIT
+renderTable();
 </script>
 
 </body>

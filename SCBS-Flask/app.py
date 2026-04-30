@@ -59,10 +59,17 @@ def init_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS inquiries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        email TEXT,
-        message TEXT,
-        status TEXT DEFAULT 'unread'
+
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        message TEXT NOT NULL,
+
+        status TEXT DEFAULT 'unread',         -- unread / read
+
+        remarks TEXT,                         -- admin notes / decision (Approved, Declined, etc.)
+
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME                  -- updated when admin edits remarks
     )
     """)
 
@@ -246,7 +253,7 @@ def update_inquiry(id):
 # ======================
 @app.route('/history_log')
 def history_log():
-    cursor.execute("SELECT * FROM history_log ORDER BY created_at DESC")
+    cursor.execute("SELECT * FROM history_log ORDER BY created_at ASC")
     logs = cursor.fetchall()
 
     return render_template(

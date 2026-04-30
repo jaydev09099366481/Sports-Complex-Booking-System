@@ -301,6 +301,42 @@ tbody tr:hover {
     .sidebar { display: none; }
     .main { margin-left: 0; }
 }
+
+/* PAGINATION */
+.pagination {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;   /* centers horizontally */
+    align-items: center;
+    gap: 6px;                  /* replaces margin spacing */
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    background: none;
+    border: 1px solid #1f2a38;
+    color: #cfe8ff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagination button:hover {
+    background: rgba(0,229,255,0.15);
+}
+
+.pagination button.active {
+    background: #00e5ff;
+    color: #001018;
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 </style>
 </head>
 
@@ -389,53 +425,51 @@ tbody tr:hover {
         </div>
     </div>
 
-    <div class="content">
+<div class="content">
 
 <div class="table-container">
 
     <!-- HEADER -->
     <div class="table-header" style="display:flex; justify-content:space-between; align-items:center;">
 
-        <!-- LEFT: TITLE + CREATE -->
+        <!-- LEFT -->
         <div style="display:flex; align-items:center; gap:10px;">
-
             <button class="action-btn" onclick="openCreateModal()">
                 + Add Category
             </button>
         </div>
 
-        <!-- RIGHT: SEARCH -->
+        <!-- RIGHT -->
         <div class="search-box">
             <input 
                 type="text" 
                 id="searchCategory" 
-                placeholder="Search category..." 
-                onkeyup="searchCategory()">
+                placeholder="Search category...">
         </div>
 
     </div>
 
-<!-- TABLE -->
-<table class="category-table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Category Name</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th style="text-align:center;">Action</th>
-        </tr>
-    </thead>
+    <!-- TABLE -->
+    <table class="category-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Category Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th style="text-align:center;">Action</th>
+            </tr>
+        </thead>
 
-    <tbody id="categoryTableBody">
-        <!-- DATA WILL BE LOADED VIA loadCategories() -->
-        <tr>
-            <td colspan="5" style="text-align:center;">
-                Loading categories...
-            </td>
-        </tr>
-    </tbody>
-</table>
+        <tbody id="categoryTableBody">
+            <!-- DATA WILL BE LOADED VIA loadCategories() -->
+        </tbody>
+    </table>
+
+</div>
+
+<!-- ✅ PAGINATION (OUTSIDE CONTAINER) -->
+<div class="pagination" id="categoryPagination"></div>
 
 </div>
 
@@ -477,6 +511,13 @@ tbody tr:hover {
 <script>
 
 // =============================
+// GLOBAL STATE (PAGINATION)
+// =============================
+let categoriesData = [];
+let currentPage = 1;
+const rowsPerPage = 6;
+
+// =============================
 // LOAD DATA
 // =============================
 function loadCategories() {
@@ -484,45 +525,141 @@ function loadCategories() {
     .then(res => res.json())
     .then(data => {
 
-        const table = document.getElementById("categoryTableBody");
-        table.innerHTML = "";
-
-        if (data.length === 0) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align:center;">No categories found</td>
-                </tr>
-            `;
-            return;
-        }
-
-        data.forEach(cat => {
-            table.innerHTML += `
-                <tr>
-                    <td>${cat.id}</td>
-                    <td>${cat.name}</td>
-                    <td>${cat.description ?? '-'}</td>
-                    <td>${cat.status}</td>
-
-                    <!-- INLINE ACTION BUTTONS -->
-                    <td style="text-align:center; white-space:nowrap;">
-
-                        <button class="action-btn" onclick="openEditModal(${cat.id}, '${cat.name}', '${cat.description}', '${cat.status}')">
-                            Edit
-                        </button>
-
-                        <button class="action-btn" style="background:#ff6b6b; color:#fff;"
-                                onclick="deleteCategory(${cat.id})">
-                            Delete
-                        </button>
-
-                    </td>
-                </tr>
-            `;
-        });
+        categoriesData = data;   // store globally
+        currentPage = 1;         // reset page
+        renderTable();
 
     });
 }
+
+// =============================
+// RENDER TABLE (PAGINATED)
+// =============================
+function renderTable() {
+
+    const table = document.getElementById("categoryTableBody");
+    table.innerHTML = "";
+
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+
+    let pageData = categoriesData.slice(start, end);
+
+    if (pageData.length === 0) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center;">No categories found</td>
+            </tr>
+        `;
+        renderPagination();
+        return;
+    }
+
+    pageData.forEach(cat => {
+        table.innerHTML += `
+            <tr>
+                <td>${cat.id}</td>
+                <td>${cat.name}</td>
+                <td>${cat.description ?? '-'}</td>
+                <td>${cat.status}</td>
+
+                <td style="text-align:center; white-space:nowrap;">
+
+                    <button class="action-btn"
+                        onclick="openEditModal(${cat.id}, '${cat.name}', '${cat.description}', '${cat.status}')">
+                        Edit
+                    </button>
+
+                    <button class="action-btn" style="background:#ff6b6b; color:#fff;"
+                        onclick="deleteCategory(${cat.id})">
+                        Delete
+                    </button>
+
+                </td>
+            </tr>
+        `;
+    });
+
+    renderPagination();
+}
+
+// =============================
+// PAGINATION UI
+// =============================
+function renderPagination() {
+
+    let container = document.getElementById("categoryPagination");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    let totalPages = Math.ceil(categoriesData.length / rowsPerPage);
+
+    if (totalPages <= 1) return;
+
+    // PREV
+    container.innerHTML += `
+        <button onclick="changePage(${currentPage - 1})"
+        ${currentPage === 1 ? "disabled" : ""}>
+            &lt;
+        </button>
+    `;
+
+    // NUMBERS
+    for (let i = 1; i <= totalPages; i++) {
+        container.innerHTML += `
+            <button class="${i === currentPage ? 'active' : ''}"
+                onclick="changePage(${i})">
+                ${i}
+            </button>
+        `;
+    }
+
+    // NEXT
+    container.innerHTML += `
+        <button onclick="changePage(${currentPage + 1})"
+        ${currentPage === totalPages ? "disabled" : ""}>
+            &gt;
+        </button>
+    `;
+}
+
+// =============================
+// CHANGE PAGE
+// =============================
+function changePage(page) {
+
+    let totalPages = Math.ceil(categoriesData.length / rowsPerPage);
+
+    if (page < 1 || page > totalPages) return;
+
+    currentPage = page;
+    renderTable();
+}
+
+
+// =============================
+// SEARCH (FIXED + PAGINATION SAFE)
+// =============================
+document.getElementById("searchCategory").addEventListener("input", function () {
+
+    const keyword = this.value.toLowerCase().trim();
+
+    const filtered = categoriesData.filter(cat => {
+        return (
+            (cat.name || "").toLowerCase().includes(keyword) ||
+            (cat.description || "").toLowerCase().includes(keyword) ||
+            (cat.status || "").toLowerCase().includes(keyword)
+        );
+    });
+
+    currentPage = 1;
+
+    // temporarily replace dataset for rendering
+    tempData = filtered;
+
+    renderFilteredTable(filtered);
+});
 // =============================
 // PAGE LOAD
 // =============================
@@ -542,7 +679,7 @@ function closeCreateModal() {
 }
 
 // =============================
-// SUBMIT FORM (FIXED)
+// SUBMIT FORM
 // =============================
 document.getElementById("createCategoryForm").addEventListener("submit", function(e) {
     e.preventDefault();
@@ -586,19 +723,9 @@ document.getElementById("createCategoryForm").addEventListener("submit", functio
     });
 });
 
-
 // =============================
-// SEARCH
+// OPEN EDIT
 // =============================
-function searchCategory() {
-    let input = document.getElementById("searchCategory").value.toLowerCase();
-    let rows = document.querySelectorAll("#categoryTableBody tr");
-
-    rows.forEach(row => {
-        let text = row.innerText.toLowerCase();
-        row.style.display = text.includes(input) ? "" : "none";
-    });
-}
 function openEditModal(id, name, description, status) {
 
     document.getElementById("categoryId").value = id;
@@ -611,6 +738,9 @@ function openEditModal(id, name, description, status) {
     document.getElementById("createModal").style.display = "block";
 }
 
+// =============================
+// DELETE
+// =============================
 function deleteCategory(id) {
 
     Swal.fire({
@@ -636,7 +766,9 @@ function deleteCategory(id) {
 
     });
 }
+
 </script>
+
 
 </body>
 </html>

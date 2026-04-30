@@ -385,15 +385,16 @@ tbody tr:hover {
         </select>
 
         <label>Profile Image</label>
-        <input type="file" id="user_image" accept="image/*">
+        <!-- ✅ FIXED ID (must match JS) -->
+        <input type="file" id="user_profile_image" accept="image/*">
 
+        <!-- ✅ Preview Image -->
         <img id="previewImage" 
-             style="width:80px; height:80px; border-radius:50%; display:none; margin-bottom:10px;">
+             style="width:80px; height:80px; border-radius:50%; display:none; margin-bottom:10px; object-fit:cover;">
 
         <button class="submit-btn" onclick="saveUser()">Save User</button>
     </div>
 </div>
-
 <body>
 
 <!-- SIDEBAR -->
@@ -660,17 +661,14 @@ function editUser(id) {
 // ======================
 // IMAGE PREVIEW
 // ======================
-document.getElementById("user_image").addEventListener("change", function(e) {
+document.getElementById("user_profile_image").addEventListener("change", function(e) {
     const file = e.target.files[0];
-    if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = document.getElementById("previewImage");
-        img.src = e.target.result;
-        img.style.display = "block";
-    };
-    reader.readAsDataURL(file);
+    if (file) {
+        const preview = document.getElementById("previewImage");
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    }
 });
 
 
@@ -680,32 +678,34 @@ document.getElementById("user_image").addEventListener("change", function(e) {
 function saveUser() {
     const id = document.getElementById("user_id").value;
 
-    const data = {
-        name: document.getElementById("user_name").value,
-        email: document.getElementById("user_email").value,
-        address: document.getElementById("user_address").value,
-        phone: document.getElementById("user_phone").value,
-        role: document.getElementById("user_role").value,
-        status: document.getElementById("user_status").value,
-        profile_image: document.getElementById("previewImage").src || "/static/default.png"
-    };
+    const formData = new FormData();
+
+    formData.append("name", document.getElementById("user_name").value);
+    formData.append("email", document.getElementById("user_email").value);
+    formData.append("address", document.getElementById("user_address").value);
+    formData.append("phone", document.getElementById("user_phone").value);
+    formData.append("role", document.getElementById("user_role").value);
+    formData.append("status", document.getElementById("user_status").value);
+
+    // ✅ GET ACTUAL FILE (NOT preview src)
+    const fileInput = document.getElementById("user_profile_image");
+    if (fileInput.files.length > 0) {
+        formData.append("profile_image", fileInput.files[0]);
+    }
 
     const url = id ? `/update_user/${id}` : `/create_user`;
 
     fetch(url, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
+        body: formData   // ❌ NO headers needed
     })
     .then(res => res.json())
     .then(() => {
         closeUserModal();
         loadUsers();
-    });
+    })
+    .catch(err => console.error("Error:", err));
 }
-
 
 // ======================
 // CLOSE MODAL

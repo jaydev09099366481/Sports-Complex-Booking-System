@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request
 import sqlite3
 import os
+import time
 from werkzeug.security import generate_password_hash
-from history_logger import log_action   # ✅ IMPORT LOGGER
+from werkzeug.utils import secure_filename  # ✅ FIX: MISSING IMPORT
+from history_logger import log_action
 
 # Create Blueprint
 fetch_user = Blueprint('fetch_user', __name__)
@@ -11,6 +13,9 @@ fetch_user = Blueprint('fetch_user', __name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
 
+# ✅ FIX: CORRECT ABSOLUTE UPLOAD PATH
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads', 'profiles')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # ======================
 # GET ALL USERS
@@ -65,16 +70,26 @@ def get_user(id):
 # ======================
 @fetch_user.route('/create_user', methods=['POST'])
 def create_user():
-    data = request.get_json()
+    name = request.form.get('name')
+    email = request.form.get('email')
+    password = request.form.get('password', '123456')
+    phone = request.form.get('phone')
+    address = request.form.get('address')
+    role = request.form.get('role', 'user')
+    status = request.form.get('status', 'active')
 
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password', '123456')
-    phone = data.get('phone')
-    address = data.get('address')
-    role = data.get('role', 'user')
-    status = data.get('status', 'active')
-    profile_image = data.get('profile_image', '/static/default.png')
+    file = request.files.get('profile_image')
+
+    if file and file.filename != '':
+        filename = secure_filename(file.filename)
+        filename = f"{int(time.time())}_{filename}"
+
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+
+        profile_image = f"/static/uploads/profiles/{filename}"
+    else:
+        profile_image = "/static/uploads/profiles/default.png"
 
     hashed_password = generate_password_hash(password)
 
@@ -86,17 +101,20 @@ def create_user():
             INSERT INTO users 
             (name, email, password, phone, address, role, status, profile_image)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (name, email, hashed_password, phone, address, role, status, profile_image))
+        """, (
+            name,
+            email,
+            hashed_password,
+            phone,
+            address,
+            role,
+            status,
+            profile_image
+        ))
 
         conn.commit()
-
-    except sqlite3.IntegrityError:
-        return jsonify({"status": "error", "message": "Email already exists"})
-
-    finally:
-        
         user_id = cursor.lastrowid
-        # ✅ LOG THE ACTION
+
         log_action(
             action="CREATE",
             table_name="users",
@@ -104,27 +122,52 @@ def create_user():
             description=f"Admin added user '{name}'"
         )
 
+    except sqlite3.IntegrityError:
+        return jsonify({
+            "status": "error",
+            "message": "Email already exists"
+        })
+
+    finally:
         conn.close()
 
-    return jsonify({"status": "success", "message": "User created successfully"})
+    return jsonify({
+        "status": "success",
+        "message": "User created successfully"
+    })
+
 
 # ======================
-# UPDATE USER
+# UPDATE USER (FIXED FILE UPLOAD)
 # ======================
 @fetch_user.route('/update_user/<int:id>', methods=['POST'])
 def update_user(id):
-    data = request.get_json()
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone = request.form.get('phone')
+    address = request.form.get('address')
+    role = request.form.get('role')
+    status = request.form.get('status')
 
-    name = data.get('name')
-    email = data.get('email')
-    phone = data.get('phone')
-    address = data.get('address')
-    role = data.get('role')
-    status = data.get('status')
-    profile_image = data.get('profile_image')
+    file = request.files.get('profile_image')
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
+    # ✅ Get existing image (to keep if no new upload)
+    cursor.execute("SELECT profile_image FROM users WHERE id=?", (id,))
+    old_user = cursor.fetchone()
+
+    profile_image = old_user[0] if old_user else "/static/uploads/profiles/default.png"
+
+    if file and file.filename != '':
+        filename = secure_filename(file.filename)
+        filename = f"{int(time.time())}_{filename}"
+
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+
+        profile_image = f"/static/uploads/profiles/{filename}"
 
     cursor.execute("""
         UPDATE users 
@@ -135,7 +178,6 @@ def update_user(id):
     conn.commit()
     conn.close()
 
-    # ✅ LOG THE ACTION
     log_action(
         action="UPDATE",
         table_name="users",
@@ -155,16 +197,13 @@ def delete_user(id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # ✅ get user first
     cursor.execute("SELECT name FROM users WHERE id=?", (id,))
     user = cursor.fetchone()
 
-    # delete user
     cursor.execute("DELETE FROM users WHERE id=?", (id,))
     conn.commit()
     conn.close()
 
-    # log action
     log_action(
         action="DELETE",
         table_name="users",

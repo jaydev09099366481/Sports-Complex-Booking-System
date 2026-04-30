@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<!-- https://faphouse.com/videos/the-night-cheated-stepsister-cgNScK?utm_source=pbweb&utm_medium=referral&utm_campaign=pbw  -->
 <head>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -353,6 +353,153 @@
                 gap: 10px;
             }
         }
+
+ /* ================= FACILITIES SECTION ================= */
+
+.facilities {
+    background: #fff;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+/* SECTION TITLE */
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* ================= FILTER BUTTONS ================= */
+.category-filters {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.filter-btn {
+    padding: 10px 18px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.filter-btn:hover {
+    background: #e0f2f1;
+    border-color: #14b8a6;
+    color: #0f766e;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: #fff;
+    border: none;
+}
+
+/* ================= GRID ================= */
+.facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+/* ================= CARD ================= */
+.facility-card {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.facility-card:hover {
+    transform: translateY(-6px);
+}
+
+/* IMAGE FIX (IMPORTANT) */
+.facility-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.facility-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.4s;
+}
+
+.facility-card:hover .facility-image img {
+    transform: scale(1.05);
+}
+
+/* CONTENT */
+.facility-content {
+    padding: 15px;
+    text-align: left;
+}
+
+.facility-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.facility-header h3 {
+    font-size: 18px;
+    color: #111827;
+    margin: 0;
+}
+
+.price {
+    font-weight: 700;
+    color: #10b981;
+}
+
+.facility-content p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+/* META */
+.facility-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+}
+
+
+/* BUTTON */
+.book-btn {
+    width: 100%;
+    padding: 10px;
+    background: #e0f2f1;
+    border-color: #14b8a6;
+    color: #0f766e;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.book-btn:hover {
+
+        background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: #fff;
+    border: none;
+}
     </style>
 </head>
 
@@ -398,13 +545,12 @@ function sendInquiry() {
 }
 </script>
 
+
 <body>
 
 <!-- NAVBAR -->
 <div class="navbar">
 
-    <!-- <p>{{ user }}</p> -->
-    
     <div class="logo"><i class="fas fa-dumbbell"></i> Sports Complex</div>
 
     <div class="nav-links">
@@ -422,7 +568,13 @@ function sendInquiry() {
         {% else %}
             <div class="profile-dropdown">
                 <div class="profile-btn">
-                    <img src="https://ui-avatars.com/api/?name={{ user }}&background=329D9C&color=fff&rounded=true">
+
+                    {% if user.profile_image %}
+                        <img src="{{ user.profile_image }}" alt="Profile">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.name }}&background=329D9C&color=fff&rounded=true">
+                    {% endif %}
+
                 </div>
 
                 <div class="dropdown-menu">
@@ -490,6 +642,75 @@ function sendInquiry() {
     </div>
 </section>
 
+
+<h2 class="section-title">Facilities List</h2>
+
+<div class="category-filters">
+
+    <br>
+
+    <button class="filter-btn active" data-category="all">
+        All
+    </button>
+
+    {% for category in categories %}
+    <button class="filter-btn" data-category="{{ category.id }}">
+        {{ category.name }}
+    </button>
+    {% endfor %}
+</div>
+
+
+<!-- FACILITIES GRID -->
+<div class="facilities-grid">
+
+    {% if facilities and facilities|length > 0 %}
+        {% for facility in facilities %}
+
+            <div class="facility-card" data-category="{{ facility.category_id }}">
+
+            <div class="facility-image">
+                <img src="{{ facility.image_url }}" 
+                    alt="{{ facility.name }}"
+                    onerror="this.onerror=null; this.src='{{ url_for("static", filename="uploads/facilities/default.png") }}';">
+            </div> 
+
+                <!-- CONTENT -->
+                <div class="facility-content">
+
+                    <div class="facility-header">
+                        <h3>{{ facility.name }}</h3>
+                        <span class="price">₱{{ facility.price_per_hour }}/hr</span>
+                    </div>
+
+                    <p>
+                        {{ facility.description if facility.description else 'No description available.' }}
+                    </p>
+
+                    <div class="facility-meta">
+                        <small>👥 Capacity: {{ facility.capacity }}</small>
+                        <small>Status: {{ facility.status }}</small>
+                    </div>
+
+                    <button class="book-btn">
+                        Book
+                    </button>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+    {% else %}
+
+        <p style="grid-column: 1/-1; text-align:center;">
+            No facilities available at the moment.
+        </p>
+
+    {% endif %}
+
+</div>
+
 <!-- CONTACT -->
 <section id="contact" class="contact">
     <h2>Contact Us</h2>
@@ -544,9 +765,76 @@ function next() {
     update();
 }
 
+function filterFacilities(category) {
+    document.querySelectorAll(".facility-card").forEach(card => {
+        if (category === "all" || card.dataset.category === category) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.category === category);
+    });
+}
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        filterFacilities(btn.dataset.category);
+    });
+});
+
 update();
 setInterval(next, 10000);
 </script>
 
+
+<script>
+function filterFacilities(categoryId) {
+    let cards = document.querySelectorAll('.facility-card');
+    let buttons = document.querySelectorAll('.filter-btn');
+
+    // button active state
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    event.target.classList.add('active');
+
+    cards.forEach(card => {
+        if (categoryId === 'all' || card.dataset.category == categoryId) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+
+<script>
+const buttons = document.querySelectorAll(".filter-btn");
+const cards = document.querySelectorAll(".facility-card");
+
+buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+
+        // active button highlight
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const category = btn.getAttribute("data-category");
+
+        cards.forEach(card => {
+            const cardCategory = card.getAttribute("data-category");
+
+            if (category === "all" || category === cardCategory) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+
+    });
+});
+</script>
 </body>
 </html>

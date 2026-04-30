@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from werkzeug.security import generate_password_hash
@@ -122,12 +123,73 @@ init_db()
 def render_with_active(template, active_page):
     return render_template(template, active_page=active_page)
 
+    
 # ======================
 # ROUTES
 # ======================
 @app.route('/')
 def index():
-    return render_template('index.html', user=session.get('user'))
+    user_data = None
+
+    # ======================
+    # USER SESSION
+    # ======================
+    if 'user' in session:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT name, email, profile_image FROM users WHERE email=?",
+            (session['user'],)
+        )
+
+        user_data = cursor.fetchone()
+        conn.close()
+
+    # ======================
+    # CATEGORIES
+    # ======================
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM categories WHERE status='Available'")
+    categories = cursor.fetchall()
+
+    # ======================
+    # FACILITIES (WITH IMAGE PATH FIX)
+    # ======================
+    cursor.execute("SELECT * FROM facilities WHERE status='Available'")
+    facilities_raw = cursor.fetchall()
+    conn.close()
+
+    facilities = []
+    for f in facilities_raw:
+        facility = dict(f)
+
+        # assumes your DB column is: image or facility_image
+        image_file = facility.get("image") or facility.get("facility_image")
+
+        if image_file:
+            facility["image_url"] = url_for(
+                'static',
+                filename=f'uploads/facilities/{image_file}'
+            )
+        else:
+            facility["image_url"] = url_for(
+                'static',
+                filename='uploads/facilities/default.png'
+            )
+
+        facilities.append(facility)
+
+    return render_template(
+        "index.html",
+        user=user_data,
+        categories=categories,
+        facilities=facilities,
+    )
 
 
 # LOGIN
@@ -197,6 +259,32 @@ def login():
 
     return render_template('auth/login.html')
 
+
+@app.context_processor
+def inject_user():
+    if 'user' in session:
+        try:
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "SELECT name, email, profile_image FROM users WHERE email=?",
+                (session['user'],)
+            )
+
+            user = cursor.fetchone()
+            conn.close()
+
+            if user:
+                return dict(user=user)  # ✅ Now user is a full object
+
+        except Exception as e:
+            print("USER FETCH ERROR:", e)
+
+    return dict(user=None)
+
+    
 # ======================
 # ADMIN PAGES
 # ======================

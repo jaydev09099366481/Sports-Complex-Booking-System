@@ -430,7 +430,7 @@ tbody tr:hover {
                     <!-- IMAGE -->
                     <td>
                         {% if f.image %}
-                            <img src="{{ url_for('static', filename='uploads/' + f.image) }}"
+                            <img src="{{ url_for('static', filename='uploads/facilities/' + f.image) }}"
                                 style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
                         {% else %}
                             -
@@ -588,7 +588,7 @@ function loadFacilities() {
                 <tr>
                     <td>${f.id}</td>
                     <td>
-                        ${f.image ? `<img src="/static/uploads/${f.image}" 
+                        ${f.image ? `<img src="/static/uploads/facilities/${f.image}" 
                             style="width:50px;height:50px;border-radius:6px;">` : '-'}
                     </td>
 
@@ -669,7 +669,7 @@ function openEditModal(id) {
 
         // show existing image
         if (data.image) {
-            document.getElementById("imagePreview").src = "/static/uploads/" + data.image;
+            document.getElementById("imagePreview").src = "/static/uploads/facilities/" + data.image;
             document.getElementById("imagePreview").style.display = "block";
         } else {
             document.getElementById("imagePreview").style.display = "none";

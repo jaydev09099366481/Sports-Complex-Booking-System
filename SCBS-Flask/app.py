@@ -9,6 +9,7 @@ from fetch_users import fetch_user
 from fetch_inquiries import fetch_inquiry
 from fetch_categories import fetch_categories
 from fetch_facility import fetch_facility
+from fetch_reservations import fetch_reservations
 
 # ======================
 # BASE DIRECTORY
@@ -25,7 +26,7 @@ app.register_blueprint(fetch_user)
 app.register_blueprint(fetch_inquiry)
 app.register_blueprint(fetch_categories)
 app.register_blueprint(fetch_facility)
-
+app.register_blueprint(fetch_reservations)
 # ======================
 # DATABASE CONNECTION
 # ======================
@@ -41,6 +42,46 @@ cursor = conn.cursor()
 # ======================
 def init_db():
 
+
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS reservations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        -- 🔗 RELATIONSHIPS
+        facility_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+
+        -- 📅 SCHEDULE
+        booking_date TEXT NOT NULL,
+        start_time TEXT NOT NULL,
+        end_time TEXT NOT NULL,
+
+        -- 💰 PAYMENT INFO
+        total_amount REAL NOT NULL,
+        deposit_amount REAL NOT NULL,
+        payment_method TEXT DEFAULT 'GCash',
+
+        gcash_reference TEXT,
+        payment_screenshot TEXT,  -- filename/path
+
+        -- 📊 STATUS FLOW
+        status TEXT DEFAULT 'Pending',  
+        -- Pending / Approved / Rejected / Cancelled
+
+        -- 📝 OPTIONAL INFO
+        purpose TEXT,
+
+        -- ⏱ TIMESTAMPS
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        date_updated TIMESTAMP,
+
+        -- 🔗 FOREIGN KEYS (optional but recommended)
+        FOREIGN KEY (facility_id) REFERENCES facilities(id),
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    """)
+    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

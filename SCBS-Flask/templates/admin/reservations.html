@@ -21,7 +21,9 @@ body {
     color: #e6f1ff;
 }
 
-/* SIDEBAR */
+/* ======================
+   SIDEBAR
+====================== */
 .sidebar {
     width: 230px;
     height: 100vh;
@@ -67,7 +69,9 @@ body {
     text-transform: uppercase;
 }
 
-/* MAIN */
+/* ======================
+   MAIN
+====================== */
 .main {
     margin-left: 230px;
     width: 100%;
@@ -111,12 +115,86 @@ body {
     background: rgba(0,229,255,0.1);
 }
 
-/* CONTENT */
+/* ======================
+   CONTENT
+====================== */
 .content {
     padding: 25px;
 }
 
-/* EMPTY STATE (since no content yet) */
+/* ======================
+   TABLE CONTAINER
+====================== */
+.table-container {
+    background: linear-gradient(145deg, #0f1117, #111827);
+    border: 1px solid #1f2a38;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* TABLE HEADER */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.table-header h4 {
+    color: #00e5ff;
+}
+
+/* SEARCH */
+.search-box input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #1f2a38;
+    background: #0a0f1a;
+    color: #e6f1ff;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-box input:focus {
+    border-color: #00e5ff;
+    box-shadow: 0 0 8px rgba(0,229,255,0.3);
+}
+
+.search-box input::placeholder {
+    color: #6b85a6;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #0a1f2e;
+}
+
+th {
+    color: #00e5ff;
+    font-weight: 500;
+}
+
+th, td {
+    padding: 10px;
+    font-size: 13px;
+    text-align: left;
+}
+
+tbody tr {
+    border-top: 1px solid #1f2a38;
+    transition: 0.2s;
+}
+
+tbody tr:hover {
+    background: rgba(0, 229, 255, 0.08);
+}
+
+/* EMPTY STATE */
 .empty-state {
     background: linear-gradient(145deg, #0f1117, #111827);
     border: 1px solid #1f2a38;
@@ -124,6 +202,7 @@ body {
     padding: 40px;
     text-align: center;
     color: #6b85a6;
+    margin-top: 20px;
 }
 
 .empty-state i {
@@ -132,7 +211,37 @@ body {
     margin-bottom: 10px;
 }
 
-/* FOOTER */
+/* ======================
+   BUTTONS
+====================== */
+.btn {
+    padding:6px 10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+    margin:2px;
+}
+
+.btn-view { background:#00e5ff; color:#000; }
+.btn-update { background:#1e88e5; color:#fff; }
+.btn-delete { background:#ff4d4d; color:#fff; }
+
+/* STATUS BADGES */
+.badge {
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+}
+
+.badge.Pending { background:#ffb74d; color:#000; }
+.badge.Approved { background:#4caf50; color:#fff; }
+.badge.Rejected { background:#f44336; color:#fff; }
+.badge.Cancelled { background:#9e9e9e; color:#fff; }
+
+/* ======================
+   FOOTER
+====================== */
 .footer {
     text-align: center;
     padding: 12px;
@@ -233,16 +342,75 @@ body {
         </div>
     </div>
 
-    <div class="content">
+<div class="content">
 
-        <!-- Placeholder Content -->
-        <div class="empty-state">
-            <i class="fas fa-calendar-check"></i>
+    <div class="table-container">
+
+        <!-- HEADER -->
+        <div class="table-header">
+
+            <h4>Reservations</h4>
+
+            <div style="display:flex; gap:10px; align-items:center;">
+
+                <!-- SEARCH -->
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search reservations..." onkeyup="loadReservations()">
+                </div>
+
+                <!-- FILTER -->
+                <select id="statusFilter" onchange="loadReservations()"
+                    style="
+                        padding:8px;
+                        border-radius:6px;
+                        border:1px solid #1f2a38;
+                        background:#0a0f1a;
+                        color:#e6f1ff;
+                    ">
+
+                    <option value="all">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Cancelled">Cancelled</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Facility</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="reservationTable"></tbody>
+
+        </table>
+
+        <!-- EMPTY STATE -->
+        <div id="emptyState" class="empty-state" style="display:none;">
+            <i class="fas fa-receipt"></i>
             <h3>No Reservations Yet</h3>
             <p>Reservations will appear here once users start booking.</p>
         </div>
 
     </div>
+
+</div>
 
     <div class="footer">
         © 2026 Sports Complex Booking System
@@ -260,6 +428,270 @@ window.onclick = function(e) {
     if (!e.target.closest('.user')) {
         document.getElementById("profileMenu").style.display = "none";
     }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    loadReservations();
+
+    document
+        .getElementById("statusFilter")
+        .addEventListener("change", loadReservations);
+
+    document
+        .getElementById("searchInput")
+        .addEventListener("keyup", loadReservations);
+
+});
+
+function loadReservations() {
+
+    let filter =
+        document.getElementById("statusFilter").value;
+
+    let search =
+        document.getElementById("searchInput")
+        .value
+        .toLowerCase();
+
+    fetch("/get_reservations")
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            let tbody =
+                document.getElementById("reservationTable");
+
+            tbody.innerHTML = "";
+
+            // ======================
+            // FILTER
+            // ======================
+            let filtered = data.filter(r => {
+
+                let matchStatus =
+                    filter === "all" ||
+                    r.status === filter;
+
+                let matchSearch =
+
+                    (r.user_email || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                    ||
+
+                    (r.facility_name || "")
+                    .toLowerCase()
+                    .includes(search)
+
+                    ||
+
+                    (r.booking_date || "")
+                    .toLowerCase()
+                    .includes(search);
+
+                return matchStatus && matchSearch;
+            });
+
+            // ======================
+            // EMPTY STATE
+            // ======================
+            if (filtered.length === 0) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9"
+                            style="
+                                text-align:center;
+                                padding:40px;
+                                color:#6b85a6;
+                            ">
+
+                            <i class="fas fa-calendar-check"
+                               style="
+                                   font-size:35px;
+                                   color:#00e5ff;
+                                   margin-bottom:10px;
+                                   display:block;
+                               ">
+                            </i>
+
+                            <h3 style="margin-bottom:5px;">
+                                No Reservations Found
+                            </h3>
+
+                            <p>
+                                Reservations will appear here once users start booking.
+                            </p>
+
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            // ======================
+            // TABLE RENDER
+            // ======================
+            filtered.forEach(r => {
+
+                tbody.innerHTML += `
+                <tr>
+
+                    <td>${r.id}</td>
+
+                    <td>${r.user_name || "N/A"}</td>
+
+                    <td>${r.user_email || "N/A"}</td>
+
+                    <td>${r.facility_name || "-"}</td>
+
+                    <td>${r.booking_date}</td>
+
+                    <td>
+                        ${r.start_time} - ${r.end_time}
+                    </td>
+
+                    <td>
+                        ₱${parseFloat(r.total_amount).toFixed(2)}
+                    </td>
+
+                    <td>
+                        <span class="badge ${r.status}">
+                            ${r.status}
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="btn btn-view"
+                            onclick='viewReservation(${JSON.stringify(r)})'>
+                            View
+                        </button>
+
+                        <button
+                            class="btn btn-update"
+                            onclick="updateStatus(${r.id})">
+                            Update
+                        </button>
+
+                        <button
+                            class="btn btn-delete"
+                            onclick="deleteReservation(${r.id})">
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+                `;
+            });
+
+        })
+
+        .catch(err => {
+
+            console.error(err);
+
+            document.getElementById("reservationTable").innerHTML = `
+                <tr>
+                    <td colspan="9"
+                        style="
+                            text-align:center;
+                            padding:30px;
+                            color:#ff6b6b;
+                        ">
+                        Failed to load reservations
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+function viewReservation(r) {
+
+    Swal.fire({
+        title: "Reservation Details",
+        width: 500,
+        html: `
+        <div style="text-align:left;font-family:Arial;line-height:1.6">
+
+            <p><b>User:</b> ${r.user_name}</p>
+            <p><b>Email:</b> ${r.user_email}</p>
+            <p><b>Phone:</b> ${r.user_phone}</p>
+
+            <hr>
+
+            <p><b>Facility:</b> ${r.facility_name}</p>
+            <p><b>Date:</b> ${r.booking_date}</p>
+            <p><b>Time:</b> ${r.start_time} - ${r.end_time}</p>
+
+            <hr>
+
+            <p><b>GCash Ref:</b> ${r.gcash_reference || "N/A"}</p>
+            <p><b>Status:</b> ${r.status}</p>
+
+        </div>
+        `,
+        confirmButtonText: "Close"
+    });
+}
+
+function updateStatus(id) {
+
+    Swal.fire({
+        title: "Update Status",
+        input: "select",
+        inputOptions: {
+            Pending: "Pending",
+            Approved: "Approved",
+            Rejected: "Rejected",
+            Cancelled: "Cancelled"
+        },
+        showCancelButton: true,
+        confirmButtonText: "Update",
+        confirmButtonColor: "#1e88e5"
+
+    }).then(res => {
+
+        if (res.isConfirmed) {
+
+            let formData = new FormData();
+            formData.append("status", res.value);
+
+            fetch(`/update_reservation_status/${id}`, {
+                method: "POST",
+                body: formData
+            }).then(() => loadReservations());
+
+        }
+    });
+}
+
+function deleteReservation(id) {
+
+    Swal.fire({
+        title: "Delete Reservation?",
+        text: "This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ff4d4d",
+        confirmButtonText: "Delete"
+
+    }).then(res => {
+
+        if (res.isConfirmed) {
+
+            fetch(`/delete_reservation/${id}`, {
+                method: "POST"
+            }).then(() => loadReservations());
+
+        }
+    });
 }
 </script>
 

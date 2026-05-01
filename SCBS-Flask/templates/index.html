@@ -501,6 +501,94 @@
     border: none;
 }
     </style>
+
+
+<style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.modal-container.minimal {
+    width: 420px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.modal-title {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+    display: block;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+textarea {
+    resize: none;
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.total-box {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.submit-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    border: none;
+    background: #1e88e5;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.error-box {
+    display: none;
+    background: #ffe5e5;
+    color: #d8000c;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 10px;
+}
+</style>
 </head>
 
 <script>
@@ -692,7 +780,10 @@ function sendInquiry() {
                         <small>Status: {{ facility.status }}</small>
                     </div>
 
-                    <button class="book-btn">
+                    <button class="book-btn"
+                        onclick="openBookingModal(this)"
+                        data-id="{{ facility.id }}"
+                        data-price="{{ facility.price_per_hour }}">
                         Book
                     </button>
 
@@ -708,6 +799,50 @@ function sendInquiry() {
         </p>
 
     {% endif %}
+
+</div>
+
+<div id="bookingModal" class="modal-overlay" onclick="handleOverlayClick(event)">
+
+    <div class="modal-container minimal" onclick="event.stopPropagation()">
+
+        <h2 class="modal-title">Book Schedule</h2>
+
+        <form onsubmit="handleBookingSubmit(event)">
+
+            <!-- DATE -->
+            <label>Date</label>
+            <input type="date" id="startDate">
+
+            <!-- TIME -->
+            <div class="time-grid">
+
+                <div>
+                    <label>Start Time</label>
+                    <select id="startTime"></select>
+                </div>
+
+                <div>
+                    <label>End Time</label>
+                    <select id="endTime" disabled></select>
+                </div>
+
+            </div>
+
+            <!-- PURPOSE -->
+            <label>Purpose of Booking</label>
+            <textarea id="purpose" placeholder="Optional"></textarea>
+
+
+            <div id="bookingError" class="error-box"></div>
+
+            <button class="submit-btn" type="submit">
+                Continue
+            </button>
+
+        </form>
+
+    </div>
 
 </div>
 
@@ -836,5 +971,334 @@ buttons.forEach(btn => {
     });
 });
 </script>
+
+<script>
+
+let pricePerHour = 0;
+let computedTotal = 0;
+let depositAmount = 0;
+
+/* OPEN MODAL */
+function openBookingModal(btn) {
+
+    document.getElementById("bookingModal").style.display = "flex";
+
+    pricePerHour = parseFloat(btn.dataset.price);
+
+    let today = new Date();
+    let dateInput = document.getElementById("startDate");
+
+    dateInput.value = today.toISOString().split('T')[0];
+    dateInput.min = dateInput.value;
+
+    setupTime(today);
+
+    dateInput.onchange = handleDateChange;
+    document.getElementById("startTime").onchange = handleStart;
+    document.getElementById("endTime").onchange = calculateTotal;
+}
+
+/* DATE LOGIC */
+function handleDateChange() {
+
+    let selected = new Date(this.value);
+    let today = new Date();
+
+    let isToday = selected.toDateString() === today.toDateString();
+
+    setupTime(isToday ? today : null);
+}
+
+/* TIME SETUP */
+function setupTime(now) {
+
+    let start = document.getElementById("startTime");
+    let end = document.getElementById("endTime");
+
+    start.innerHTML = "";
+    end.innerHTML = "";
+    end.disabled = true;
+
+    let currentHour = now ? now.getHours() : 8;
+
+    for (let i = 8; i <= 22; i++) {
+
+        if (now && i < currentHour) continue;
+
+        start.add(new Option(format(i), i));
+        end.add(new Option(format(i), i));
+    }
+
+    start.value = now ? currentHour : 8;
+}
+
+/* START TIME */
+function handleStart() {
+
+    let start = parseInt(this.value);
+    let end = document.getElementById("endTime");
+
+    end.disabled = false;
+    end.innerHTML = "";
+
+    for (let i = start; i <= 22; i++) {
+        end.add(new Option(format(i), i));
+    }
+}
+
+/* CALCULATE */
+function calculateTotal() {
+
+    let s = parseInt(document.getElementById("startTime").value);
+    let e = parseInt(document.getElementById("endTime").value);
+
+    if (!s || !e || e <= s) return 0;
+
+    let hours = e - s;
+    computedTotal = hours * pricePerHour;
+
+    return computedTotal;
+}
+
+function handleBookingSubmit(event) {
+    event.preventDefault();
+
+    let errorBox = document.getElementById("bookingError");
+    errorBox.style.display = "none";
+    errorBox.innerHTML = "";
+
+    let total = calculateTotal();
+
+    let start = document.getElementById("startTime").value;
+    let end = document.getElementById("endTime").value;
+
+    // VALIDATION
+    if (!start || !end || end <= start) {
+        showError("Please select a valid time range.");
+        return;
+    }
+
+    if (total <= 0) {
+        showError("Invalid booking duration.");
+        return;
+    }
+
+    let deposit = total * 0.30;
+
+    // CLOSE BOOKING MODAL FIRST
+    closeBookingModal();
+
+    // OPEN PAYMENT MODAL
+    openPaymentModal(deposit, total);
+}
+
+function showError(msg) {
+    let errorBox = document.getElementById("bookingError");
+    errorBox.innerHTML = msg;
+    errorBox.style.display = "block";
+}
+
+function openPaymentModal(deposit, total) {
+
+    let savedRef = "";
+    let savedFile = null;
+
+    // =========================
+    // STEP 1: COMPLETE PAYMENT
+    // =========================
+    function step1() {
+        Swal.fire({
+            title: "Gcash Details",
+            width: 440,
+            showCancelButton: true,
+            confirmButtonText: "Continue",
+            cancelButtonText: "Close",
+            confirmButtonColor: "#1e88e5",
+            cancelButtonColor: "#aaa",
+
+            html: `
+            <div style="font-family:Arial;text-align:center;">
+
+                <div style="background:#f8f9fb;padding:18px;border-radius:14px;margin-bottom:15px;">
+                    <img src="/static/images/qr.png"
+                         style="width:170px;height:170px;border-radius:12px;object-fit:cover;">
+                    <p style="font-size:12px;color:#666;margin-top:10px;">
+                        Scan QR using GCash
+                    </p>
+                </div>
+
+                <div style="text-align:left;font-size:14px;background:#fff;border:1px solid #eee;padding:12px;border-radius:10px;margin-bottom:12px;">
+                    <p><b>GCash Name:</b> Juan Dela Cruz</p>
+                    <p><b>GCash Number:</b> 09519237397</p>
+                </div>
+
+                <div style="text-align:left;background:#e3f2fd;padding:12px;border-radius:10px;">
+                    <p><b>Total:</b> ₱${total}</p>
+                    <p><b>Deposit (30%):</b> ₱${deposit.toFixed(2)}</p>
+                </div>
+
+            </div>
+            `
+
+        }).then((res) => {
+            if (res.isConfirmed) step2();
+        });
+    }
+
+    // =========================
+    // STEP 2: Reference DETAILS
+    // =========================
+    function step2() {
+        Swal.fire({
+            title: "Reference Details",
+            width: 420,
+            showCancelButton: true,
+            confirmButtonText: "Continue",
+            cancelButtonText: "Back",
+            confirmButtonColor: "#1e88e5",
+            cancelButtonColor: "#aaa",
+
+            html: `
+            <div style="font-family:Arial;text-align:left;">
+
+                <label style="font-size:13px;font-weight:bold;">GCash Reference Number</label>
+                <input id="gcashRef"
+                    placeholder="Enter reference number"
+                    value="${savedRef}"
+                    style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:12px;">
+
+                <label style="font-size:13px;font-weight:bold;">Upload Screenshot</label>
+                <input id="gcashReceipt"
+                    type="file"
+                    accept="image/*"
+                    style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;">
+
+                <p style="font-size:11px;color:#777;margin-top:6px;">
+                    Upload clear GCash proof
+                </p>
+
+            </div>
+            `,
+
+            preConfirm: () => {
+
+                let ref = document.getElementById("gcashRef").value;
+                let file = document.getElementById("gcashReceipt").files[0];
+
+                if (!ref) {
+                    Swal.showValidationMessage("Reference number is required");
+                    return false;
+                }
+
+                if (!file) {
+                    Swal.showValidationMessage("Please upload screenshot");
+                    return false;
+                }
+
+                savedRef = ref;
+                savedFile = file;
+
+                return true;
+            }
+
+        }).then((res) => {
+
+            if (res.isConfirmed) {
+                step3();
+            }
+
+            // 🔙 BACK BUTTON
+            if (res.dismiss === Swal.DismissReason.cancel) {
+                step1();
+            }
+        });
+    }
+
+    // =========================
+    // STEP 3: CONFIRMATION
+    // =========================
+    function step3() {
+        Swal.fire({
+            title: "Confirm Submission",
+            width: 420,
+            icon: "warning",
+
+            html: `
+            <div style="font-family:Arial;text-align:left;line-height:1.6">
+
+                <p style="margin-bottom:10px;">
+                    ⚠️ <b>Please review before submitting</b>
+                </p>
+
+                <div style="background:#fff3cd;padding:10px;border-radius:8px;">
+                    <p style="margin:0;">• Ensure reference number is correct</p>
+                    <p style="margin:0;">• Screenshot must be clear and valid</p>
+                    <p style="margin:0;">• Incorrect details will be rejected</p>
+                </div>
+
+                <hr>
+
+                <p><b>Reference:</b> ${savedRef}</p>
+
+            </div>
+            `,
+
+            showCancelButton: true,
+            confirmButtonText: "Yes, Submit",
+            cancelButtonText: "Back",
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#1e88e5"
+
+        }).then((res) => {
+
+            if (res.isConfirmed) {
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Payment Submitted",
+                    text: "Waiting for verification",
+                    confirmButtonColor: "#1e88e5"
+                });
+
+                // TODO: backend submit
+
+            }
+
+            // 🔙 BACK BUTTON
+            if (res.dismiss === Swal.DismissReason.cancel) {
+                step2();
+            }
+        });
+    }
+
+    // START FLOW
+    step1();
+}
+
+
+/* FORMAT */
+function format(h) {
+    let ampm = h >= 12 ? "PM" : "AM";
+    let hour = h % 12 || 12;
+    return hour + ":00 " + ampm;
+}
+
+/* CLOSE MODAL */
+function closeBookingModal() {
+    document.getElementById("bookingModal").style.display = "none";
+}
+
+/* OUTSIDE CLICK */
+function handleOverlayClick(event) {
+    let modal = document.querySelector(".modal-container.minimal");
+
+    if (!modal.contains(event.target)) {
+        closeBookingModal();
+    }
+}
+
+</script>
+
+
 </body>
 </html>

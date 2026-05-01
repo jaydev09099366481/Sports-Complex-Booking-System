@@ -1,56 +1,160 @@
 import sqlite3
+import random
+from datetime import datetime, timedelta
 
+# ======================
+# DATABASE CONNECTION
+# ======================
 conn = sqlite3.connect("database.db")
 cursor = conn.cursor()
 
 # ======================
-# FUNCTION: GET CATEGORY ID
+# FETCH USERS
 # ======================
-def get_category_id(name):
-    cursor.execute("SELECT id FROM categories WHERE name = ?", (name,))
-    result = cursor.fetchone()
-    return result[0] if result else None
+cursor.execute("""
+    SELECT id, name
+    FROM users
+    WHERE role = 'user'
+""")
+users = cursor.fetchall()
 
+# ======================
+# FETCH FACILITIES
+# ======================
+cursor.execute("""
+    SELECT id, name, price_per_hour
+    FROM facilities
+""")
+facilities = cursor.fetchall()
 
 # ======================
-# RAW DATA (WITH CATEGORY NAMES)
+# VALIDATION
 # ======================
-raw_facilities = [
-    ("Basketball Court", "Main Court A", "Indoor full-size basketball court with LED lighting", "basketball.jpg", "Available"),
-    ("Swimming Pool", "Olympic Pool", "50-meter Olympic size swimming pool", "pool.jpg", "Available"),
-    ("Tennis Court", "Court 1", "Standard clay tennis court", "tennis.jpg", "Available"),
-    ("Gym", "Fitness Center", "Fully equipped gym with modern machines", "gym.jpg", "Maintenance"),
-    ("Football Field", "Main Field", "Full-size grass football field", "football.jpg", "Available")
+if not users:
+    print("❌ No users found in users table.")
+    conn.close()
+    exit()
+
+if not facilities:
+    print("❌ No facilities found in facilities table.")
+    conn.close()
+    exit()
+
+# ======================
+# SAMPLE DATA
+# ======================
+statuses = [
+    "Pending",
+    "Approved",
+    "Rejected",
+    "Cancelled"
 ]
 
+purposes = [
+    "Basketball Practice",
+    "Swimming Session",
+    "Training Camp",
+    "Friendly Match",
+    "School Tournament",
+    "Fitness Workout",
+    "Team Building",
+    "Sports Event",
+    "Competition",
+    "Birthday Event"
+]
+
+time_slots = [
+    ("8:00 AM", "10:00 AM", 2),
+    ("9:00 AM", "11:00 AM", 2),
+    ("10:00 AM", "12:00 PM", 2),
+    ("1:00 PM", "3:00 PM", 2),
+    ("3:00 PM", "5:00 PM", 2),
+    ("5:00 PM", "7:00 PM", 2),
+    ("6:00 PM", "9:00 PM", 3)
+]
 
 # ======================
-# VALIDATE + CLEAN DATA
+# GENERATE DUMMY RESERVATIONS
 # ======================
-clean_data = []
+dummy_reservations = []
 
-for category_name, name, description, image, status in raw_facilities:
-    category_id = get_category_id(category_name)
+for i in range(15):
 
-    if category_id is not None:
-        clean_data.append((category_id, name, description, image, status))
-    else:
-        print(f"⚠️ Skipped: Category '{category_name}' not found")
+    user = random.choice(users)
+    facility = random.choice(facilities)
 
+    user_id = user[0]
+
+    facility_id = facility[0]
+    facility_price = facility[2] if facility[2] else 500
+
+    # RANDOM FUTURE DATE
+    booking_date = (
+        datetime.now() + timedelta(days=random.randint(0, 15))
+    ).strftime("%Y-%m-%d")
+
+    # RANDOM TIME SLOT
+    start_time, end_time, hours = random.choice(time_slots)
+
+    # PAYMENT COMPUTATION
+    total_amount = float(facility_price) * hours
+    deposit_amount = round(total_amount * 0.30, 2)
+
+    # PAYMENT DETAILS
+    payment_method = "GCash"
+    gcash_reference = f"GCASH-{random.randint(100000,999999)}"
+
+    payment_screenshot = "/static/uploads/payments/sample_receipt.png"
+
+    # STATUS
+    status = random.choice(statuses)
+
+    # PURPOSE
+    purpose = random.choice(purposes)
+
+    # UPDATED DATE
+    date_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    dummy_reservations.append((
+        facility_id,
+        user_id,
+        booking_date,
+        start_time,
+        end_time,
+        total_amount,
+        deposit_amount,
+        payment_method,
+        gcash_reference,
+        payment_screenshot,
+        status,
+        purpose,
+        date_updated
+    ))
 
 # ======================
-# INSERT ONLY VALID DATA
+# INSERT DUMMY DATA
 # ======================
-if clean_data:
-    cursor.executemany("""
-        INSERT INTO facilities (category_id, name, description, image, status)
-        VALUES (?, ?, ?, ?, ?)
-    """, clean_data)
+cursor.executemany("""
+    INSERT INTO reservations (
+        facility_id,
+        user_id,
+        booking_date,
+        start_time,
+        end_time,
+        total_amount,
+        deposit_amount,
+        payment_method,
+        gcash_reference,
+        payment_screenshot,
+        status,
+        purpose,
+        date_updated
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+""", dummy_reservations)
 
-    conn.commit()
-    print(f"✅ {len(clean_data)} facilities inserted successfully!")
-else:
-    print("❌ No valid data to insert.")
+conn.commit()
 
+print(f"✅ {len(dummy_reservations)} dummy reservations inserted successfully!")
 
 conn.close()

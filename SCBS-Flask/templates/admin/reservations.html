@@ -347,17 +347,7 @@ tbody tr:hover {
 
         <!-- HEADER -->
         <div class="table-header">
-
-            <h4>Reservations</h4>
-
-            <div style="display:flex; gap:10px; align-items:center;">
-
-                <!-- SEARCH -->
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search reservations..." onkeyup="loadReservations()">
-                </div>
-
-                <!-- FILTER -->
+<!-- FILTER -->
                 <select id="statusFilter" onchange="loadReservations()"
                     style="
                         padding:8px;
@@ -374,6 +364,12 @@ tbody tr:hover {
                     <option value="Cancelled">Cancelled</option>
 
                 </select>
+            <div style="display:flex; gap:10px; align-items:center;">
+
+                <!-- SEARCH -->
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search reservations..." onkeyup="loadReservations()">
+                </div>
 
             </div>
 

@@ -333,8 +333,97 @@ def inject_user():
 # ======================
 @app.route('/admin')
 def dashboard():
-    return render_with_active('admin/dashboard.html', 'dashboard')
 
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # ======================
+    # COUNTS
+    # ======================
+    cursor.execute("SELECT COUNT(*) FROM reservations")
+    reservations_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM categories")
+    categories_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM facilities")
+    facilities_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM users")
+    users_count = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM inquiries")
+    inquiries_count = cursor.fetchone()[0]
+
+    # ======================
+    # SALES (APPROVED ONLY)
+    # ======================
+    cursor.execute("""
+        SELECT IFNULL(SUM(total_amount), 0)
+        FROM reservations
+        WHERE status = 'Approved'
+    """)
+    total_sales = cursor.fetchone()[0]
+
+    # ======================
+    # ACTIVE / ONGOING RESERVATIONS
+    # (APPROVED ONLY FOR LIVE MONITORING)
+    # ======================
+    cursor.execute("""
+        SELECT
+            r.id,
+            r.booking_date,
+            r.start_time,
+            r.end_time,
+            r.status,
+
+            r.facility_id,
+            r.user_id,
+
+            u.name AS user_name,
+            f.name AS facility_name
+
+        FROM reservations r
+
+        LEFT JOIN users u ON r.user_id = u.id
+        LEFT JOIN facilities f ON r.facility_id = f.id
+
+        WHERE r.status = 'Approved'
+        ORDER BY r.id DESC
+    """)
+
+    active_rows = cursor.fetchall()
+
+    active_reservations = []
+
+    for r in active_rows:
+        row = dict(r)
+
+        # Convert to datetime format for JS countdown
+        row["end_datetime"] = f"{row['booking_date']} {row['end_time']}"
+
+        active_reservations.append(row)
+
+    conn.close()
+
+    return render_template(
+        'admin/dashboard.html',
+
+        active_page='dashboard',
+
+        reservations_count=reservations_count,
+        categories_count=categories_count,
+        facilities_count=facilities_count,
+        users_count=users_count,
+        inquiries_count=inquiries_count,
+        total_sales=total_sales,
+
+        # 🔥 LIVE MONITORING DATA
+        active_reservations=active_reservations
+    )
+
+    
 @app.route('/reservations')
 def reservations():
     return render_with_active('admin/reservations.html', 'reservations')

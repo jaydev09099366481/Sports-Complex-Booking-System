@@ -35,39 +35,74 @@
             background: linear-gradient(135deg, var(--mint), #ffffff);
         }
 
-        /* ================= NAVBAR ================= */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 60px;
-            background: var(--dark);
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+/* ================= NAVBAR ================= */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 60px;
+    background: var(--dark);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-        }
+/* LOGO */
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+}
 
-        .nav-links {
-            display: flex;
-            gap: 25px;
-        }
+/* CENTER WRAPPER */
+.nav-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
 
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-        }
+/* NAV LINKS */
+.nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
 
-        .nav-links a:hover {
-            color: var(--light-green);
-        }
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    position: relative;
+    transition: 0.3s;
+}
 
+/* hover underline effect */
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0%;
+    height: 2px;
+    background: var(--light-green);
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    color: var(--light-green);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* AUTH RIGHT SIDE */
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
         .profile-dropdown {
             position: relative;
             display: inline-block;
@@ -253,24 +288,6 @@
             padding: 80px 60px;
         }
 
-        .about {
-            text-align: center;
-        }
-
-        .about h2 {
-            font-size: 32px;
-            color: var(--dark);
-            margin-bottom: 20px;
-        }
-
-        .about p {
-            max-width: 800px;
-            margin: auto;
-            color: #444;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
         .pricing {
             text-align: center;
         }
@@ -304,38 +321,6 @@
             color: var(--dark);
         }
 
-        .contact {
-            text-align: center;
-        }
-
-        .contact h2 {
-            font-size: 32px;
-            color: var(--dark);
-        }
-
-        .contact-box {
-            max-width: 500px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .contact-box input,
-        .contact-box textarea {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        .contact-box button {
-            background: var(--teal);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-        }
-
         .footer {
             background: var(--dark);
             color: white;
@@ -353,186 +338,6 @@
                 gap: 10px;
             }
         }
-
- /* ================= FACILITIES SECTION ================= */
-
-.facilities {
-    background: #fff;
-    padding: 60px 20px;
-    text-align: center;
-}
-
-/* SECTION TITLE */
-.section-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 25px;
-    text-align: center;
-}
-
-/* ================= FILTER BUTTONS ================= */
-.category-filters {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 30px;
-}
-
-.filter-btn {
-    padding: 10px 18px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    color: #374151;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-weight: 500;
-}
-
-.filter-btn:hover {
-    background: #e0f2f1;
-    border-color: #14b8a6;
-    color: #0f766e;
-}
-
-.filter-btn.active {
-    background: linear-gradient(135deg, #14b8a6, #0f766e);
-    color: #fff;
-    border: none;
-}
-
-/* ================= GRID ================= */
-.facilities-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-    gap: 22px;
-    padding: 10px;
-}
-
-/* ================= CARD ================= */
-.facility-card {
-    background: #ffffff;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid #eef0f3;
-    transition: 0.25s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.facility-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-/* ================= IMAGE ================= */
-.facility-image {
-    width: 100%;
-    height: 210px;
-    overflow: hidden;
-    background: #f3f4f6;
-}
-
-.facility-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: 0.35s ease;
-}
-
-.facility-card:hover .facility-image img {
-    transform: scale(1.04);
-}
-
-/* ================= CONTENT ================= */
-.facility-content {
-    padding: 16px;
-}
-
-/* HEADER */
-.facility-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.facility-header h3 {
-    font-size: 17px;
-    color: #111827;
-    margin: 0;
-    font-weight: 600;
-}
-
-/* PRICE */
-.price {
-    font-weight: 600;
-    font-size: 13px;
-    color: #0f766e;
-    background: #e6fffa;
-    padding: 4px 8px;
-    border-radius: 8px;
-    white-space: nowrap;
-}
-
-/* DESCRIPTION */
-.facility-desc {
-    font-size: 13px;
-    color: #6b7280;
-    margin: 10px 0 14px;
-    line-height: 1.5;
-}
-
-/* META */
-.facility-meta {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-top: 1px solid #f1f5f9;
-    border-bottom: 1px solid #f1f5f9;
-    margin-bottom: 14px;
-}
-
-.meta-item {
-    display: flex;
-    flex-direction: column;
-    font-size: 12px;
-}
-
-.meta-item .label {
-    color: #9ca3af;
-}
-
-.meta-item .value {
-    color: #111827;
-    font-weight: 500;
-}
-
-/* STATUS STYLE (SOFT) */
-.status {
-    color: #0f766e;
-}
-
-/* BUTTON */
-.book-btn {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #14b8a6;
-    background: #f0fdfa;
-    color: #0f766e;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.25s ease;
-}
-
-.book-btn:hover {
-    background: #14b8a6;
-    color: white;
-    box-shadow: 0 8px 20px rgba(20,184,166,0.25);
-}
 
 /* EMPTY STATE */
 .empty-state {
@@ -628,8 +433,944 @@ textarea {
     font-size: 13px;
     margin-top: 10px;
 }
+
+
+
+/* ================= CHATBOT ================= */
+.chatbot-section {
+    padding: 80px 60px;
+    background: #f8fafc;
+}
+
+.chatbot-container {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 40px;
+    align-items: center;
+}
+
+/* LEFT INFO */
+.chatbot-badge {
+    display: inline-block;
+    background: #d1fae5;
+    color: #065f46;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.chatbot-info h2 {
+    font-size: 38px;
+    color: #111827;
+    margin-bottom: 15px;
+}
+
+.chatbot-info p {
+    color: #6b7280;
+    line-height: 1.7;
+    margin-bottom: 25px;
+}
+
+.chatbot-features {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.feature i {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CHATBOX */
+.chatbot-box {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.chatbot-header {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    padding: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chatbot-messages {
+    height: 350px;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f9fafb;
+}
+
+.bot-message,
+.user-message {
+    max-width: 85%;
+    padding: 12px 15px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.bot-message {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.user-message {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    margin-left: auto;
+}
+
+/* INPUT */
+.chatbot-input {
+    display: flex;
+    border-top: 1px solid #e5e7eb;
+}
+
+.chatbot-input input {
+    flex: 1;
+    border: none;
+    padding: 16px;
+    outline: none;
+    font-size: 14px;
+}
+
+.chatbot-input button {
+    width: 65px;
+    border: none;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.chatbot-input button:hover {
+    opacity: 0.9;
+}
+
+/* MOBILE */
+@media(max-width: 900px){
+
+    .chatbot-container {
+        grid-template-columns: 1fr;
+    }
+
+    .chatbot-section {
+        padding: 60px 20px;
+    }
+
+}
+</style>
+
+<style>
+    /* ================= ABOUT SECTION ================= */
+.about-section {
+    padding: 90px 7%;
+    background:
+        linear-gradient(
+            180deg,
+            #f8fafc 0%,
+            #eef6ff 100%
+        );
+}
+
+/* CONTAINER */
+.about-container {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+/* CONTENT */
+.about-content h2 {
+    font-size: 42px;
+    line-height: 1.2;
+    color: #0f172a;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+
+.about-description {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.9;
+    margin-bottom: 18px;
+}
+
+/* BADGE */
+.about-badge {
+    display: inline-block;
+    background: rgba(20, 184, 166, 0.12);
+    color: #0f766e;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+/* FEATURES */
+.about-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 35px;
+}
+
+.feature-card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    transition: 0.35s ease;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(20, 184, 166, 0.12);
+}
+
+/* ICON */
+.feature-card i {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+/* TEXT */
+.feature-card h4 {
+    font-size: 15px;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+.feature-card p {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* IMAGE */
+.about-image {
+    position: relative;
+}
+
+.about-image img {
+    width: 100%;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+}
+
+/* OVERLAY */
+.about-overlay {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    right: 25px;
+}
+
+.overlay-card {
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 22px;
+    padding: 22px;
+    color: white;
+}
+
+.overlay-card h3 {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.overlay-card p {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+/* RESPONSIVE */
+@media(max-width: 980px){
+
+    .about-container {
+        grid-template-columns: 1fr;
+    }
+
+    .about-image img {
+        height: 420px;
+    }
+
+    .about-content h2 {
+        font-size: 34px;
+    }
+
+    .about-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 600px){
+
+    .about-section {
+        padding: 70px 20px;
+    }
+
+    .about-content h2 {
+        font-size: 28px;
+    }
+
+    .about-image img {
+        height: 320px;
+    }
+}
+</style>
+
+<style>
+    /* ================= PRICING SECTION ================= */
+.pricing-section {
+    padding: 90px 7%;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+/* HEADER */
+.pricing-header {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 55px;
+}
+
+.pricing-badge {
+    display: inline-block;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: rgba(20, 184, 166, 0.12);
+    color: #0f766e;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.pricing-header h2 {
+    font-size: 40px;
+    color: #0f172a;
+    margin-bottom: 14px;
+    font-weight: 800;
+}
+
+.pricing-header p {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* GRID */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+    justify-content: center;
+    gap: 28px;
+}
+
+/* CARD */
+.price-card {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    padding: 35px 28px;
+    border: 1px solid #e2e8f0;
+    transition: 0.35s ease;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.05);
+}
+
+.price-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(20, 184, 166, 0.12);
+}
+
+/* FEATURED */
+.featured-plan {
+    border: 2px solid #14b8a6;
+    transform: scale(1.03);
+}
+
+.featured-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ICON */
+.plan-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 22px;
+}
+
+/* TEXT */
+.price-card h3 {
+    font-size: 28px;
+    color: #0f172a;
+    margin-bottom: 14px;
+}
+
+.price {
+    font-size: 48px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 22px;
+}
+
+.price span {
+    font-size: 15px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* FEATURES */
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    color: #334155;
+    font-size: 14px;
+}
+
+.plan-features i {
+    color: #14b8a6;
+    font-size: 13px;
+}
+
+/* BUTTON */
+.pricing-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.pricing-btn:hover {
+    opacity: 0.92;
+    transform: translateY(-2px);
+}
+
+/* RESPONSIVE */
+@media(max-width: 768px){
+
+    .pricing-section {
+        padding: 75px 20px;
+    }
+
+    .pricing-header h2 {
+        font-size: 32px;
+    }
+
+    .featured-plan {
+        transform: none;
+    }
+}
+</style>
+
+<style>
+    /* ================= CONTACT SECTION ================= */
+.contact-section {
+    padding: 100px 7%;
+    background:
+        linear-gradient(
+            180deg,
+            #f8fafc 0%,
+            #eef6ff 100%
+        );
+}
+
+/* CONTAINER */
+.contact-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+/* LEFT SIDE */
+.contact-info h2 {
+    font-size: 42px;
+    color: #0f172a;
+    margin-bottom: 18px;
+    font-weight: 800;
+}
+
+.contact-info p {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.9;
+    margin-bottom: 30px;
+}
+
+/* BADGE */
+.contact-badge {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgba(20, 184, 166, 0.12);
+    color: #0f766e;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+/* CONTACT CARDS */
+.contact-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.contact-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    transition: 0.3s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 35px rgba(20, 184, 166, 0.10);
+}
+
+/* ICON */
+.contact-card i {
+    width: 55px;
+    height: 55px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.contact-card h4 {
+    font-size: 16px;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.contact-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* FORM */
+.contact-form-container {
+    background: rgba(255,255,255,0.88);
+    border-radius: 28px;
+    padding: 35px;
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+/* INPUT GROUP */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #dbe4ee;
+    background: #fff;
+    font-size: 14px;
+    color: #0f172a;
+    outline: none;
+    transition: 0.3s ease;
+    resize: none;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+}
+
+/* BUTTON */
+.contact-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.contact-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.94;
+}
+
+/* RESPONSIVE */
+@media(max-width: 980px){
+
+    .contact-container {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-info h2 {
+        font-size: 34px;
+    }
+}
+
+@media(max-width: 768px){
+
+    .contact-section {
+        padding: 75px 20px;
+    }
+
+    .contact-form-container {
+        padding: 25px;
+    }
+
+    .contact-info h2 {
+        font-size: 28px;
+    }
+}
+</style>
+
+
+<style>
+/* ================= FACILITIES SECTION ================= */
+.facilities-section {
+    padding: 80px 6%;
+    background: #f8fafc;
+}
+
+/* HEADER */
+.section-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 15px;
+    max-width: 650px;
+    margin: 0 auto 35px;
+    line-height: 1.7;
+}
+
+/* FILTERS */
+.category-filters {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 35px;
+}
+
+.filter-btn {
+    padding: 10px 18px;
+    border: 1px solid #dbe4ee;
+    background: #fff;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* GRID */
+.facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 300px));
+    justify-content: center;
+    gap: 28px;
+}
+
+/* CARD */
+.facility-card {
+    background: #fff;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    transition: 0.3s;
+}
+
+.facility-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 35px rgba(0,0,0,0.1);
+}
+
+/* IMAGE */
+.facility-image {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+}
+
+.facility-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.4s;
+}
+
+.facility-card:hover .facility-image img {
+    transform: scale(1.05);
+}
+
+/* CONTENT */
+.facility-content {
+    padding: 20px;
+}
+
+.facility-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.facility-header h3 {
+    font-size: 20px;
+    color: #0f172a;
+    margin: 0;
+}
+
+.price {
+    background: #ecfeff;
+    color: #0f766e;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* DESCRIPTION */
+.facility-desc {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    min-height: 65px;
+}
+
+/* META */
+.facility-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    font-size: 13px;
+    color: #475569;
+}
+
+/* BUTTON */
+.book-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.book-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(15,118,110,0.2);
+}
+
+/* EMPTY */
+.empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 50px;
+    background: #fff;
+    border-radius: 18px;
+    color: #64748b;
+}
+
+/* RESPONSIVE */
+@media(max-width: 768px){
+
+    .facilities-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .facility-card {
+        width: 100%;
+    }
+
+    .section-title {
+        font-size: 28px;
+    }
+}
 </style>
 </head>
+
+
+<script>
+function sendMessage() {
+
+    let input = document.getElementById("chatInput");
+    let message = input.value.trim();
+
+    if (message === "") return;
+
+    let chat = document.getElementById("chatMessages");
+
+    // USER MESSAGE
+    chat.innerHTML += `
+        <div class="user-message">
+            ${message}
+        </div>
+    `;
+
+    // AUTO BOT RESPONSE
+    let reply = "Sorry, I don't understand that yet.";
+
+    let msg = message.toLowerCase();
+
+    if (msg.includes("price")) {
+        reply = "Facility prices depend on the selected sports area and duration.";
+    }
+
+    else if (msg.includes("reservation")) {
+        reply = "You can reserve facilities directly through the booking section.";
+    }
+
+    else if (msg.includes("schedule")) {
+        reply = "Facility schedules depend on availability and approved reservations.";
+    }
+
+    else if (msg.includes("facility")) {
+        reply = "We offer courts, gym facilities, billiards, and other sports areas.";
+    }
+
+    else if (msg.includes("contact")) {
+        reply = "You can contact the admin through the Contact section below.";
+    }
+
+    setTimeout(() => {
+
+        chat.innerHTML += `
+            <div class="bot-message">
+                ${reply}
+            </div>
+        `;
+
+        chat.scrollTop = chat.scrollHeight;
+
+    }, 500);
+
+    input.value = "";
+
+    chat.scrollTop = chat.scrollHeight;
+}
+</script>
 
 <script>
 window.addEventListener("load", function () {
@@ -676,45 +1417,56 @@ function sendInquiry() {
 
 <body>
 
+
 <!-- NAVBAR -->
 <div class="navbar">
 
-    <div class="logo"><i class="fas fa-dumbbell"></i> Sports Complex</div>
-
-    <div class="nav-links">
-        <a href="{{ url_for('index') }}#home">Home</a>
-        <a href="{{ url_for('index') }}#about">About</a>
-        <a href="{{ url_for('index') }}#pricing">Pricing</a>
-        <a href="{{ url_for('index') }}#contact">Contact</a>
-        <a href="{{ url_for('index') }}#facilities">Facilities</a>
+    <div class="logo">
+        <i></i> Sports Complex
     </div>
 
+    <!-- CENTER NAV -->
+    <div class="nav-center">
+        <div class="nav-links">
+
+            <a href="{{ url_for('index') }}#home">Home</a>
+            <a href="{{ url_for('index') }}#about">About</a>
+            <a href="{{ url_for('index') }}#pricing">Pricing</a>
+            <a href="{{ url_for('index') }}#facilities">Facilities</a>
+            <a href="{{ url_for('index') }}#contact">Contact</a>
+            <a href="{{ url_for('index') }}#chatbot">Chatbot</a>
+
+        </div>
+    </div>
+
+    <!-- RIGHT AUTH -->
     <div class="auth-buttons">
         {% if not user %}
             <a href="{{ url_for('login') }}" class="btn btn-login">Login</a>
             <a href="{{ url_for('login') }}?form=signup" class="btn btn-signup">Sign Up</a>
         {% else %}
             <div class="profile-dropdown">
-                <div class="profile-btn">
 
+                <div class="profile-btn">
                     {% if user.profile_image %}
                         <img src="{{ user.profile_image }}" alt="Profile">
                     {% else %}
                         <img src="https://ui-avatars.com/api/?name={{ user.name }}&background=329D9C&color=fff&rounded=true">
                     {% endif %}
-
                 </div>
 
                 <div class="dropdown-menu">
                     <a href="#">Reservations</a>
                     <a href="#">Profile</a>
-                    <a href="#">Notifications</a>
                     <a href="{{ url_for('logout') }}" class="logout">Logout</a>
                 </div>
+
             </div>
         {% endif %}
     </div>
+
 </div>
+
 
 <!-- HERO -->
 <section id="home" class="hero">
@@ -734,108 +1486,311 @@ function sendInquiry() {
         <div class="hero-title" id="heroTitle"></div>
         <div class="hero-subtitle" id="heroText"></div>
 
-        <a href="{{ url_for('dashboard') }}" class="hero-btn">Book Now</a>
+        <a href="#facilities" class="hero-btn">Book Now</a>
     </div>
 
     <div class="dots" id="dots"></div>
 </section>
 
-<!-- ABOUT -->
-<section id="about" class="about">
-    <h2>About Us</h2>
-    <p>
-        Our Sports Complex Booking System is a modern and efficient platform designed to make reserving sports facilities fast, easy, and hassle-free for everyone...
-    </p>
-</section>
+<!-- ABOUT SECTION -->
+<section id="about" class="about-section">
 
-<!-- PRICING -->
-<section id="pricing" class="pricing">
-    <h2>Pricing Plans</h2>
+    <div class="about-container">
 
-    <div class="pricing-grid">
-        <div class="price-card">
-            <h3>Basic</h3>
-            <div class="price">₱100/hr</div>
+        <!-- LEFT -->
+        <div class="about-content">
+
+            <span class="about-badge">
+                About Us
+            </span>
+
+            <h2>
+                Modern Sports Facility Reservation Experience
+            </h2>
+
+            <p class="about-description">
+                Our platform is designed to simplify the process of reserving sports facilities by providing a fast, secure, and user-friendly booking experience for athletes, students, organizations, and sports enthusiasts.
+            </p>
+
+            <!-- FEATURES -->
+            <div class="about-features">
+
+                <div class="feature-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <div>
+                        <h4>Easy Reservations</h4>
+                        <p>Book facilities anytime with a streamlined scheduling system.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h4>Real-Time Availability</h4>
+                        <p>Monitor available schedules and active reservations instantly.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h4>Secure Transactions</h4>
+                        <p>Reliable reservation and payment management for all users.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <div>
+                        <h4>Responsive Platform</h4>
+                        <p>Accessible across desktop, tablet, and mobile devices.</p>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="price-card">
-            <h3>Standard</h3>
-            <div class="price">₱200/hr</div>
+        <!-- RIGHT -->
+        <div class="about-image">
+
+            <img src="{{ url_for('static', filename='images/stadium.jpg') }}"
+                 alt="Sports Complex"
+                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='uploads/facilities/default.png') }}';">
+
+            <div class="about-overlay">
+                <div class="overlay-card">
+                    <h3>24/7 Booking Access</h3>
+                    <p>Reserve facilities online anytime and anywhere.</p>
+                </div>
+            </div>
+
         </div>
 
-        <div class="price-card">
-            <h3>Premium</h3>
-            <div class="price">₱350/hr</div>
-        </div>
     </div>
+
 </section>
 
 
-<h2 class="section-title">Facilities List</h2>
+<!-- ================= PRICING SECTION ================= -->
+<section id="pricing" class="pricing-section">
 
-<div class="category-filters">
+    <!-- HEADER -->
+    <div class="pricing-header">
 
-    <br>
+        <span class="pricing-badge">
+            Pricing Plans
+        </span>
 
-    <button class="filter-btn active" data-category="all">
-        All
-    </button>
+        <h2>
+            Choose Your Reservation Plan
+        </h2>
 
-    {% for category in categories %}
-    <button class="filter-btn" data-category="{{ category.id }}">
-        {{ category.name }}
-    </button>
-    {% endfor %}
-</div>
+        <p>
+            Flexible and affordable facility rates for casual games,
+            training sessions, and tournaments.
+        </p>
 
-<section class="facilities-section">
+    </div>
+
+    <!-- GRID -->
+    <div class="pricing-grid">
+
+        <!-- BASIC -->
+        <div class="price-card">
+
+            <div class="plan-icon">
+                <i class="fas fa-table-tennis"></i>
+            </div>
+
+            <h3>Basic</h3>
+
+            <div class="price">
+                ₱100
+                <span>/hour</span>
+            </div>
+
+            <ul class="plan-features">
+                <li><i class="fas fa-check"></i> Standard Access</li>
+                <li><i class="fas fa-check"></i> 1 Hour Reservation</li>
+                <li><i class="fas fa-check"></i> Online Booking</li>
+            </ul>
+
+            <a href="#facilities" class="pricing-btn">
+                Reserve
+            </a>
+
+        </div>
+
+        <!-- STANDARD -->
+        <div class="price-card featured-plan">
+
+            <div class="featured-badge">
+                Most Popular
+            </div>
+
+            <div class="plan-icon">
+                <i class="fas fa-basketball-ball"></i>
+            </div>
+
+            <h3>Standard</h3>
+
+            <div class="price">
+                ₱200
+                <span>/hour</span>
+            </div>
+
+            <ul class="plan-features">
+                <li><i class="fas fa-check"></i> Premium Court Access</li>
+                <li><i class="fas fa-check"></i> Priority Booking</li>
+                <li><i class="fas fa-check"></i> Flexible Schedule</li>
+            </ul>
+
+            <a href="#facilities" class="pricing-btn featured-btn">
+                Reserve
+            </a>
+
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="price-card">
+
+            <div class="plan-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+
+            <h3>Premium</h3>
+
+            <div class="price">
+                ₱350
+                <span>/hour</span>
+            </div>
+
+            <ul class="plan-features">
+                <li><i class="fas fa-check"></i> Full Facility Access</li>
+                <li><i class="fas fa-check"></i> VIP Reservation</li>
+                <li><i class="fas fa-check"></i> Event Ready Setup</li>
+            </ul>
+
+            <a href="#facilities" class="pricing-btn">
+                Reserve
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= FACILITIES SECTION ================= -->
+<section id="facilities" class="facilities-section">
+
+    <!-- SECTION HEADER -->
+    <div class="facilities-header">
+
+        <h2 class="section-title">
+            Facilities List
+        </h2>
+
+    </div>
+
+    <!-- CATEGORY FILTERS -->
+    <div class="category-filters">
+
+        <button class="filter-btn active" data-category="all">
+            All
+        </button>
+
+        {% for category in categories %}
+        <button class="filter-btn" data-category="{{ category.id }}">
+            {{ category.name }}
+        </button>
+        {% endfor %}
+
+    </div>
+
     <!-- FACILITIES GRID -->
     <div class="facilities-grid">
 
         {% if facilities and facilities|length > 0 %}
             {% for facility in facilities %}
 
-                <div class="facility-card" data-category="{{ facility.category_id }}">
+                <div class="facility-card"
+                    data-category="{{ facility.category_id }}">
 
                     <!-- IMAGE -->
                     <div class="facility-image">
-                        <img src="{{ facility.image_url }}" 
+
+                        <img src="{{ facility.image_url }}"
                             alt="{{ facility.name }}"
                             loading="lazy"
                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='uploads/facilities/default.png') }}';">
+
+                        <!-- STATUS BADGE -->
+                        <div class="facility-status">
+                            {{ facility.status }}
+                        </div>
+
                     </div>
 
                     <!-- CONTENT -->
                     <div class="facility-content">
 
+                        <!-- TOP -->
                         <div class="facility-header">
-                            <h3>{{ facility.name }}</h3>
-                            <span class="price">₱{{ facility.price_per_hour }}/hr</span>
+
+                            <div>
+                                <h3>{{ facility.name }}</h3>
+
+                                <small class="facility-category">
+                                    Sports Facility
+                                </small>
+                            </div>
+
+                            <span class="price">
+                                ₱{{ facility.price_per_hour }}
+                                <small>/hr</small>
+                            </span>
+
                         </div>
 
+                        <!-- DESCRIPTION -->
                         <p class="facility-desc">
-                            {{ facility.description if facility.description else 'No description available.' }}
+                            {{ facility.description if facility.description else 'Modern sports facility available for reservation and recreational activities.' }}
                         </p>
 
+                        <!-- META -->
                         <div class="facility-meta">
 
                             <div class="meta-item">
-                                <span class="label">Capacity</span>
-                                <span class="value">{{ facility.capacity }}</span>
+
+                                <div>
+                                    <span class="label">Capacity</span>
+                                    <span class="value">
+                                        {{ facility.capacity }}
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="meta-item">
-                                <span class="label">Status</span>
-                                <span class="value status">{{ facility.status }}</span>
+                                <div>
+                                    <span class="label">Availability</span>
+                                    <span class="value">
+                                        {{ facility.status }}
+                                    </span>
+                                </div>
                             </div>
 
                         </div>
 
+                        <!-- BUTTON -->
                         <button class="book-btn"
                             onclick="openBookingModal(this)"
                             data-id="{{ facility.id }}"
                             data-price="{{ facility.price_per_hour }}">
-                            Book Facility
+
+                            Book
+
                         </button>
 
                     </div>
@@ -845,13 +1800,23 @@ function sendInquiry() {
             {% endfor %}
         {% else %}
 
-            <p class="empty-state">
-                No facilities available at the moment.
-            </p>
+            <!-- EMPTY -->
+            <div class="empty-state">
+
+                <i class="fas fa-building"></i>
+
+                <h3>No Facilities Available</h3>
+
+                <p>
+                    There are currently no facilities available for reservation.
+                </p>
+
+            </div>
 
         {% endif %}
 
     </div>
+
 </section>
 
 <!-- BOOKING MODAL -->
@@ -898,17 +1863,173 @@ function sendInquiry() {
 
 </div>
 
-<!-- CONTACT -->
-<section id="contact" class="contact">
-    <h2>Contact Us</h2>
+<!-- ================= CONTACT SECTION ================= -->
+<section id="contact" class="contact-section">
 
-    <div class="contact-box">
-        <input id="name" placeholder="Your Name">
-        <input id="email" placeholder="Your Email">
-        <textarea id="message" rows="4" placeholder="Message"></textarea>
+    <div class="contact-container">
 
-        <button onclick="sendInquiry()">Send</button>
+        <!-- LEFT SIDE -->
+        <div class="contact-info">
+
+            <span class="contact-badge">
+                Contact Us
+            </span>
+
+            <h2>
+                Get In Touch With Us
+            </h2>
+
+            <p>
+                Have questions about facility reservations, schedules, or pricing?
+                Send us a message and our team will respond as soon as possible.
+            </p>
+
+            <!-- CONTACT CARDS -->
+            <div class="contact-cards">
+
+                <div class="contact-card">
+                    <i class="fas fa-map-marker-alt"></i>
+
+                    <div>
+                        <h4>Location</h4>
+                        <p>Sports Complex Facility Center</p>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <i class="fas fa-phone-alt"></i>
+
+                    <div>
+                        <h4>Phone</h4>
+                        <p>+63 912 345 6789</p>
+                    </div>
+                </div>
+
+                <div class="contact-card">
+                    <i class="fas fa-envelope"></i>
+
+                    <div>
+                        <h4>Email</h4>
+                        <p>support@sportscomplex.com</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="contact-form-container">
+
+            <div class="contact-form">
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="name" placeholder="Enter your full name">
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email">
+                </div>
+
+                <div class="input-group">
+                    <label>Message</label>
+                    <textarea id="message" rows="5" placeholder="Write your message here..."></textarea>
+                </div>
+
+                <button onclick="sendInquiry()" class="contact-btn">
+                    Send Message
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
+
+</section>
+
+
+<!-- ================= CHATBOT SECTION ================= -->
+<section id="chatbot" class="chatbot-section">
+
+    <div class="chatbot-container">
+
+        <!-- LEFT -->
+        <div class="chatbot-info">
+
+            <span class="chatbot-badge">
+                Smart Assistant
+            </span>
+
+            <h2>
+                Sports Complex Chatbot
+            </h2>
+
+            <p>
+                Need help with reservations, schedules, facilities,
+                pricing, or availability? Our chatbot assistant can
+                quickly answer your questions anytime.
+            </p>
+
+            <div class="chatbot-features">
+
+                <div class="feature">
+                    <i class="fas fa-calendar-check"></i>
+                    Reservation Assistance
+                </div>
+
+                <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    Schedule Inquiry
+                </div>
+
+                <div class="feature">
+                    <i class="fas fa-building"></i>
+                    Facility Information
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="chatbot-box">
+
+            <!-- HEADER -->
+            <div class="chatbot-header">
+                <i class="fas fa-robot"></i>
+                SCBS Assistant
+            </div>
+
+            <!-- CHAT BODY -->
+            <div class="chatbot-messages" id="chatMessages">
+
+                <div class="bot-message">
+                    Hello 👋 Welcome to Sports Complex Booking System.
+                    How can I help you today?
+                </div>
+
+            </div>
+
+            <!-- INPUT -->
+            <div class="chatbot-input">
+
+                <input type="text"
+                       id="chatInput"
+                       placeholder="Type your message...">
+
+                <button onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
 
 <!-- FOOTER -->
@@ -916,42 +2037,74 @@ function sendInquiry() {
     © 2026 Sports Complex Booking System
 </div>
 
-<!-- SCRIPT -->
+
 <script>
-let slides = document.querySelectorAll(".slide");
-let title = document.getElementById("heroTitle");
-let text = document.getElementById("heroText");
-let dotsContainer = document.getElementById("dots");
-let index = 0;
+document.addEventListener("DOMContentLoaded", () => {
 
-slides.forEach((_, i) => {
-    let dot = document.createElement("div");
-    dot.classList.add("dot");
-    dot.addEventListener("click", () => {
-        index = i;
+    let slides = document.querySelectorAll(".slide");
+    let title = document.getElementById("heroTitle");
+    let text = document.getElementById("heroText");
+    let dotsContainer = document.getElementById("dots");
+
+    let index = 0;
+
+    /* KEEP TEXT SIMPLE (NO OVER-EXPANSION) */
+    const heroData = [
+        {
+            title: "Play. Book. Enjoy.",
+            text: "Reserve sports facilities quickly and easily anytime."
+        },
+        {
+            title: "Modern Sports Booking",
+            text: "Manage schedules and reservations in one system."
+        },
+        {
+            title: "Easy Facility Access",
+            text: "Book courts and venues without hassle."
+        }
+    ];
+
+    /* FORCE EXACT 3 DOTS ONLY */
+    dotsContainer.innerHTML = "";
+
+    for (let i = 0; i < 3; i++) {
+        let dot = document.createElement("div");
+        dot.classList.add("dot");
+        dot.addEventListener("click", () => {
+            index = i;
+            update();
+        });
+        dotsContainer.appendChild(dot);
+    }
+
+    let dots = document.querySelectorAll(".dot");
+
+    function update() {
+
+        slides.forEach(s => s.classList.remove("active"));
+        dots.forEach(d => d.classList.remove("active"));
+
+        slides[index].classList.add("active");
+        dots[index].classList.add("active");
+
+        title.textContent = heroData[index].title;
+        text.textContent = heroData[index].text;
+    }
+
+    function next() {
+        index = (index + 1) % 3; // STRICT 3 LOOP
         update();
-    });
-    dotsContainer.appendChild(dot);
-});
+    }
 
-let dots = document.querySelectorAll(".dot");
-
-function update() {
-    slides.forEach(s => s.classList.remove("active"));
-    dots.forEach(d => d.classList.remove("active"));
-
-    slides[index].classList.add("active");
-    dots[index].classList.add("active");
-
-    title.textContent = slides[index].dataset.title;
-    text.textContent = slides[index].dataset.text;
-}
-
-function next() {
-    index = (index + 1) % slides.length;
     update();
-}
 
+    /* 1 MINUTE PER SLIDE */
+    setInterval(next, 10000);
+
+});
+</script>
+
+<script>
 function filterFacilities(category) {
     document.querySelectorAll(".facility-card").forEach(card => {
         if (category === "all" || card.dataset.category === category) {

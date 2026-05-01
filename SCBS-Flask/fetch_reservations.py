@@ -53,7 +53,8 @@ def get_reservations():
             u.phone AS user_phone,
 
             f.name AS facility_name,
-            f.price_per_hour
+            f.price_per_hour,
+            f.image AS facility_image
 
         FROM reservations r
 

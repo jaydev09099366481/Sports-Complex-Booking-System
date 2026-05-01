@@ -7,6 +7,8 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
 * {
     margin: 0;
@@ -226,18 +228,15 @@ tbody tr:hover {
 .btn-view { background:#00e5ff; color:#000; }
 .btn-update { background:#1e88e5; color:#fff; }
 .btn-delete { background:#ff4d4d; color:#fff; }
-
-/* STATUS BADGES */
-.badge {
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:12px;
+.status-text {
+    font-weight: 600;
+    font-size: 13px;
 }
 
-.badge.Pending { background:#ffb74d; color:#000; }
-.badge.Approved { background:#4caf50; color:#fff; }
-.badge.Rejected { background:#f44336; color:#fff; }
-.badge.Cancelled { background:#9e9e9e; color:#fff; }
+.status-Pending { color: #ffb74d; }
+.status-Approved { color: #4caf50; }
+.status-Rejected { color: #f44336; }
+.status-Cancelled { color: #9e9e9e; }
 
 /* ======================
    FOOTER
@@ -419,6 +418,7 @@ tbody tr:hover {
 </div>
 
 <script>
+
 function toggleMenu() {
     var menu = document.getElementById("profileMenu");
     menu.style.display = (menu.style.display === "block") ? "none" : "block";
@@ -470,30 +470,17 @@ function loadReservations() {
             // ======================
             let filtered = data.filter(r => {
 
-                let matchStatus =
-                    filter === "all" ||
-                    r.status === filter;
+            let matchStatus =
+                filter === "all" ||
+                r.status === filter;
 
-                let matchSearch =
+            let matchSearch = Object.values(r)
+                .join(" ")
+                .toLowerCase()
+                .includes(search);
 
-                    (r.user_email || "")
-                    .toLowerCase()
-                    .includes(search)
-
-                    ||
-
-                    (r.facility_name || "")
-                    .toLowerCase()
-                    .includes(search)
-
-                    ||
-
-                    (r.booking_date || "")
-                    .toLowerCase()
-                    .includes(search);
-
-                return matchStatus && matchSearch;
-            });
+            return matchStatus && matchSearch;
+        });
 
             // ======================
             // EMPTY STATE
@@ -560,7 +547,7 @@ function loadReservations() {
                     </td>
 
                     <td>
-                        <span class="badge ${r.status}">
+                        <span class="status-text status-${r.status}">
                             ${r.status}
                         </span>
                     </td>
@@ -614,37 +601,106 @@ function loadReservations() {
 
 function viewReservation(r) {
 
+    // =========================
+    // FACILITY IMAGE (JOIN DATA)
+    // =========================
+    let facilityImage =
+        r.facility_image
+            ? "/static/uploads/facilities/" + r.facility_image
+            : "/static/uploads/facilities/default.png";
+
+    // =========================
+    // GCASH SCREENSHOT (RESERVATIONS TABLE)
+    // =========================
+    let gcashScreenshot = null;
+
+    if (r.payment_screenshot) {
+
+        // clean filename just in case
+        let file = r.payment_screenshot.trim();
+
+        gcashScreenshot = "/static/uploads/payments/" + file;
+    }
+
     Swal.fire({
         title: "Reservation Details",
-        width: 500,
+        width: 750,
+        confirmButtonText: "Close",
+
         html: `
         <div style="text-align:left;font-family:Arial;line-height:1.6">
 
-            <p><b>User:</b> ${r.user_name}</p>
-            <p><b>Email:</b> ${r.user_email}</p>
-            <p><b>Phone:</b> ${r.user_phone}</p>
+            <!-- FACILITY IMAGE -->
+            <div style="text-align:center;margin-bottom:15px;">
+                <img src="${facilityImage}"
+                     onerror="this.src='/static/uploads/facilities/default.png'"
+                     style="width:100%;max-height:240px;object-fit:cover;border-radius:10px;border:1px solid #ddd;">
+            </div>
+
+            <h2 style="color:#1e88e5;margin-bottom:10px;">
+                ${r.facility_name || "N/A"}
+            </h2>
 
             <hr>
 
-            <p><b>Facility:</b> ${r.facility_name}</p>
-            <p><b>Date:</b> ${r.booking_date}</p>
-            <p><b>Time:</b> ${r.start_time} - ${r.end_time}</p>
+            <h4>👤 User Information</h4>
+            <p><b>Name:</b> ${r.user_name || "N/A"}</p>
+            <p><b>Email:</b> ${r.user_email || "N/A"}</p>
+            <p><b>Phone:</b> ${r.user_phone || "N/A"}</p>
 
             <hr>
 
-            <p><b>GCash Ref:</b> ${r.gcash_reference || "N/A"}</p>
-            <p><b>Status:</b> ${r.status}</p>
+            <h4>📅 Booking Details</h4>
+            <p><b>Date:</b> ${r.booking_date || "N/A"}</p>
+            <p><b>Time:</b> ${r.start_time || "N/A"} - ${r.end_time || "N/A"}</p>
+            <p><b>Purpose:</b> ${r.purpose || "N/A"}</p>
+
+            <hr>
+
+            <h4>💰 Payment Details</h4>
+            <p><b>Total:</b> ₱${r.total_amount || 0}</p>
+            <p><b>Deposit:</b> ₱${r.deposit_amount || 0}</p>
+            <p><b>Method:</b> ${r.payment_method || "GCash"}</p>
+
+            <p><b>GCash Reference:</b> ${r.gcash_reference || "N/A"}</p>
+
+            <!-- GCASH SCREENSHOT -->
+            <div style="margin-top:10px;">
+                <h4>📸 GCash Screenshot</h4>
+
+                ${gcashScreenshot ? `
+                    <img src="${gcashScreenshot}"
+                        onerror="this.src='/static/uploads/payments/default.png'"
+                        style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;border:1px solid #ddd;">
+                ` : `
+                    <p style="color:#888;">No screenshot uploaded</p>
+                `}
+            </div>
+
+            <hr>
+
+            <h4>📊 Status</h4>
+            <p class="status-text status-${r.status}">
+                ${r.status || "Pending"}
+            </p>
 
         </div>
-        `,
-        confirmButtonText: "Close"
+        `
     });
+}
+
+function toggleSection(id) {
+    let el = document.getElementById(id);
+    if (!el) return;
+
+    el.style.display =
+        el.style.display === "none" ? "block" : "none";
 }
 
 function updateStatus(id) {
 
     Swal.fire({
-        title: "Update Status",
+        title: "Update Reservation Status",
         input: "select",
         inputOptions: {
             Pending: "Pending",
@@ -653,22 +709,40 @@ function updateStatus(id) {
             Cancelled: "Cancelled"
         },
         showCancelButton: true,
-        confirmButtonText: "Update",
+        confirmButtonText: "Next",
         confirmButtonColor: "#1e88e5"
+    }).then(first => {
 
-    }).then(res => {
+        if (!first.isConfirmed) return;
 
-        if (res.isConfirmed) {
+        let newStatus = first.value;
+
+        Swal.fire({
+            title: "Confirm Update",
+            text: `Change status to "${newStatus}"?`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Update",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#4caf50"
+        }).then(second => {
+
+            if (!second.isConfirmed) return;
 
             let formData = new FormData();
-            formData.append("status", res.value);
+            formData.append("status", newStatus);
 
             fetch(`/update_reservation_status/${id}`, {
                 method: "POST",
                 body: formData
-            }).then(() => loadReservations());
+            })
+            .then(() => {
+                Swal.fire("Updated!", "Reservation status updated.", "success");
+                loadReservations();
+            });
 
-        }
+        });
+
     });
 }
 
@@ -680,20 +754,22 @@ function deleteReservation(id) {
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#ff4d4d",
-        confirmButtonText: "Delete"
-
+        confirmButtonText: "Yes, Delete"
     }).then(res => {
 
-        if (res.isConfirmed) {
+        if (!res.isConfirmed) return;
 
-            fetch(`/delete_reservation/${id}`, {
-                method: "POST"
-            }).then(() => loadReservations());
+        fetch(`/delete_reservation/${id}`, {
+            method: "POST"
+        })
+        .then(() => {
+            Swal.fire("Deleted!", "Reservation removed successfully.", "success");
+            loadReservations();
+        });
 
-        }
     });
 }
-</script>
 
+</script>
 </body>
 </html>

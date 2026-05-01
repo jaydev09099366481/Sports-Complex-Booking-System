@@ -406,104 +406,144 @@
 /* ================= GRID ================= */
 .facilities-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 22px;
+    padding: 10px;
 }
 
 /* ================= CARD ================= */
 .facility-card {
-    background: #fff;
-    border-radius: 18px;
+    background: #ffffff;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    transition: 0.3s;
+    border: 1px solid #eef0f3;
+    transition: 0.25s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .facility-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-/* IMAGE FIX (IMPORTANT) */
+/* ================= IMAGE ================= */
 .facility-image {
     width: 100%;
-    height: 200px;
+    height: 210px;
     overflow: hidden;
+    background: #f3f4f6;
 }
 
 .facility-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: 0.4s;
+    transition: 0.35s ease;
 }
 
 .facility-card:hover .facility-image img {
-    transform: scale(1.05);
+    transform: scale(1.04);
 }
 
-/* CONTENT */
+/* ================= CONTENT ================= */
 .facility-content {
-    padding: 15px;
-    text-align: left;
+    padding: 16px;
 }
 
+/* HEADER */
 .facility-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .facility-header h3 {
-    font-size: 18px;
+    font-size: 17px;
     color: #111827;
     margin: 0;
+    font-weight: 600;
 }
 
+/* PRICE */
 .price {
-    font-weight: 700;
-    color: #10b981;
+    font-weight: 600;
+    font-size: 13px;
+    color: #0f766e;
+    background: #e6fffa;
+    padding: 4px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
 }
 
-.facility-content p {
+/* DESCRIPTION */
+.facility-desc {
     font-size: 13px;
     color: #6b7280;
-    margin: 10px 0;
-    line-height: 1.4;
+    margin: 10px 0 14px;
+    line-height: 1.5;
 }
 
 /* META */
 .facility-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
-    color: #9ca3af;
-    margin-bottom: 12px;
+    padding: 10px 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 14px;
 }
 
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
+
+.meta-item .label {
+    color: #9ca3af;
+}
+
+.meta-item .value {
+    color: #111827;
+    font-weight: 500;
+}
+
+/* STATUS STYLE (SOFT) */
+.status {
+    color: #0f766e;
+}
 
 /* BUTTON */
 .book-btn {
     width: 100%;
     padding: 10px;
-    background: #e0f2f1;
-    border-color: #14b8a6;
-    color: #0f766e;
     border-radius: 10px;
+    border: 1px solid #14b8a6;
+    background: #f0fdfa;
+    color: #0f766e;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.25s ease;
 }
 
 .book-btn:hover {
-
-        background: linear-gradient(135deg, #14b8a6, #0f766e);
-    color: #fff;
-    border: none;
+    background: #14b8a6;
+    color: white;
+    box-shadow: 0 8px 20px rgba(20,184,166,0.25);
 }
-    </style>
+
+/* EMPTY STATE */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+    font-size: 14px;
+}
 
 
-<style>
 .modal-overlay {
     display: none;
     position: fixed;
@@ -748,60 +788,73 @@ function sendInquiry() {
     {% endfor %}
 </div>
 
+<section class="facilities-section">
+    <!-- FACILITIES GRID -->
+    <div class="facilities-grid">
 
-<!-- FACILITIES GRID -->
-<div class="facilities-grid">
+        {% if facilities and facilities|length > 0 %}
+            {% for facility in facilities %}
 
-    {% if facilities and facilities|length > 0 %}
-        {% for facility in facilities %}
+                <div class="facility-card" data-category="{{ facility.category_id }}">
 
-            <div class="facility-card" data-category="{{ facility.category_id }}">
-
-            <div class="facility-image">
-                <img src="{{ facility.image_url }}" 
-                    alt="{{ facility.name }}"
-                    onerror="this.onerror=null; this.src='{{ url_for("static", filename="uploads/facilities/default.png") }}';">
-            </div> 
-
-                <!-- CONTENT -->
-                <div class="facility-content">
-
-                    <div class="facility-header">
-                        <h3>{{ facility.name }}</h3>
-                        <span class="price">₱{{ facility.price_per_hour }}/hr</span>
+                    <!-- IMAGE -->
+                    <div class="facility-image">
+                        <img src="{{ facility.image_url }}" 
+                            alt="{{ facility.name }}"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='{{ url_for('static', filename='uploads/facilities/default.png') }}';">
                     </div>
 
-                    <p>
-                        {{ facility.description if facility.description else 'No description available.' }}
-                    </p>
+                    <!-- CONTENT -->
+                    <div class="facility-content">
 
-                    <div class="facility-meta">
-                        <small>👥 Capacity: {{ facility.capacity }}</small>
-                        <small>Status: {{ facility.status }}</small>
+                        <div class="facility-header">
+                            <h3>{{ facility.name }}</h3>
+                            <span class="price">₱{{ facility.price_per_hour }}/hr</span>
+                        </div>
+
+                        <p class="facility-desc">
+                            {{ facility.description if facility.description else 'No description available.' }}
+                        </p>
+
+                        <div class="facility-meta">
+
+                            <div class="meta-item">
+                                <span class="label">Capacity</span>
+                                <span class="value">{{ facility.capacity }}</span>
+                            </div>
+
+                            <div class="meta-item">
+                                <span class="label">Status</span>
+                                <span class="value status">{{ facility.status }}</span>
+                            </div>
+
+                        </div>
+
+                        <button class="book-btn"
+                            onclick="openBookingModal(this)"
+                            data-id="{{ facility.id }}"
+                            data-price="{{ facility.price_per_hour }}">
+                            Book Facility
+                        </button>
+
                     </div>
-
-                    <button class="book-btn"
-                        onclick="openBookingModal(this)"
-                        data-id="{{ facility.id }}"
-                        data-price="{{ facility.price_per_hour }}">
-                        Book
-                    </button>
 
                 </div>
 
-            </div>
+            {% endfor %}
+        {% else %}
 
-        {% endfor %}
-    {% else %}
+            <p class="empty-state">
+                No facilities available at the moment.
+            </p>
 
-        <p style="grid-column: 1/-1; text-align:center;">
-            No facilities available at the moment.
-        </p>
+        {% endif %}
 
-    {% endif %}
+    </div>
+</section>
 
-</div>
-
+<!-- BOOKING MODAL -->
 <div id="bookingModal" class="modal-overlay" onclick="handleOverlayClick(event)">
 
     <div class="modal-container minimal" onclick="event.stopPropagation()">
@@ -832,7 +885,6 @@ function sendInquiry() {
             <!-- PURPOSE -->
             <label>Purpose of Booking</label>
             <textarea id="purpose" placeholder="Optional"></textarea>
-
 
             <div id="bookingError" class="error-box"></div>
 
@@ -974,15 +1026,16 @@ buttons.forEach(btn => {
 
 <script>
 
+let selectedFacilityId = null;
 let pricePerHour = 0;
 let computedTotal = 0;
-let depositAmount = 0;
 
 /* OPEN MODAL */
 function openBookingModal(btn) {
 
     document.getElementById("bookingModal").style.display = "flex";
 
+    selectedFacilityId = btn.dataset.id;
     pricePerHour = parseFloat(btn.dataset.price);
 
     let today = new Date();
@@ -1026,7 +1079,6 @@ function setupTime(now) {
         if (now && i < currentHour) continue;
 
         start.add(new Option(format(i), i));
-        end.add(new Option(format(i), i));
     }
 
     start.value = now ? currentHour : 8;
@@ -1041,7 +1093,7 @@ function handleStart() {
     end.disabled = false;
     end.innerHTML = "";
 
-    for (let i = start; i <= 22; i++) {
+    for (let i = start + 1; i <= 22; i++) {
         end.add(new Option(format(i), i));
     }
 }
@@ -1055,24 +1107,29 @@ function calculateTotal() {
     if (!s || !e || e <= s) return 0;
 
     let hours = e - s;
+
     computedTotal = hours * pricePerHour;
 
     return computedTotal;
 }
 
+/* SUBMIT BOOKING */
 function handleBookingSubmit(event) {
+
     event.preventDefault();
 
     let errorBox = document.getElementById("bookingError");
+
     errorBox.style.display = "none";
     errorBox.innerHTML = "";
 
-    let total = calculateTotal();
-
+    let bookingDate = document.getElementById("startDate").value;
     let start = document.getElementById("startTime").value;
     let end = document.getElementById("endTime").value;
+    let purpose = document.getElementById("purpose").value;
 
-    // VALIDATION
+    let total = calculateTotal();
+
     if (!start || !end || end <= start) {
         showError("Please select a valid time range.");
         return;
@@ -1085,29 +1142,40 @@ function handleBookingSubmit(event) {
 
     let deposit = total * 0.30;
 
-    // CLOSE BOOKING MODAL FIRST
     closeBookingModal();
 
-    // OPEN PAYMENT MODAL
-    openPaymentModal(deposit, total);
+    openPaymentModal({
+        facility_id: selectedFacilityId,
+        booking_date: bookingDate,
+        start_time: format(start),
+        end_time: format(end),
+        total_amount: total,
+        deposit_amount: deposit,
+        purpose: purpose
+    });
 }
 
 function showError(msg) {
+
     let errorBox = document.getElementById("bookingError");
+
     errorBox.innerHTML = msg;
     errorBox.style.display = "block";
 }
 
-function openPaymentModal(deposit, total) {
+/* PAYMENT FLOW */
+function openPaymentModal(bookingData) {
 
     let savedRef = "";
     let savedFile = null;
 
     // =========================
-    // STEP 1: COMPLETE PAYMENT
+    // STEP 1
     // =========================
     function step1() {
+
         Swal.fire({
+
             title: "Gcash Details",
             width: 440,
             showCancelButton: true,
@@ -1133,27 +1201,32 @@ function openPaymentModal(deposit, total) {
                 </div>
 
                 <div style="text-align:left;background:#e3f2fd;padding:12px;border-radius:10px;">
-                    <p><b>Total:</b> ₱${total}</p>
-                    <p><b>Deposit (30%):</b> ₱${deposit.toFixed(2)}</p>
+                    <p><b>Total:</b> ₱${bookingData.total_amount}</p>
+                    <p><b>Deposit (30%):</b> ₱${bookingData.deposit_amount.toFixed(2)}</p>
                 </div>
 
             </div>
             `
 
         }).then((res) => {
-            if (res.isConfirmed) step2();
+
+            if (res.isConfirmed) {
+                step2();
+            }
         });
     }
 
     // =========================
-    // STEP 2: Reference DETAILS
+    // STEP 2
     // =========================
     function step2() {
+
         Swal.fire({
+
             title: "Reference Details",
             width: 420,
             showCancelButton: true,
-            confirmButtonText: "Continue",
+            confirmButtonText: "Submit Booking",
             cancelButtonText: "Back",
             confirmButtonColor: "#1e88e5",
             cancelButtonColor: "#aaa",
@@ -1161,21 +1234,23 @@ function openPaymentModal(deposit, total) {
             html: `
             <div style="font-family:Arial;text-align:left;">
 
-                <label style="font-size:13px;font-weight:bold;">GCash Reference Number</label>
+                <label style="font-size:13px;font-weight:bold;">
+                    GCash Reference Number
+                </label>
+
                 <input id="gcashRef"
                     placeholder="Enter reference number"
                     value="${savedRef}"
                     style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:12px;">
 
-                <label style="font-size:13px;font-weight:bold;">Upload Screenshot</label>
+                <label style="font-size:13px;font-weight:bold;">
+                    Upload Screenshot
+                </label>
+
                 <input id="gcashReceipt"
                     type="file"
                     accept="image/*"
                     style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;">
-
-                <p style="font-size:11px;color:#777;margin-top:6px;">
-                    Upload clear GCash proof
-                </p>
 
             </div>
             `,
@@ -1201,85 +1276,81 @@ function openPaymentModal(deposit, total) {
                 return true;
             }
 
-        }).then((res) => {
+        }).then(async (res) => {
 
             if (res.isConfirmed) {
-                step3();
+
+                let formData = new FormData();
+
+                formData.append("facility_id", bookingData.facility_id);
+                formData.append("booking_date", bookingData.booking_date);
+                formData.append("start_time", bookingData.start_time);
+                formData.append("end_time", bookingData.end_time);
+
+                formData.append("total_amount", bookingData.total_amount);
+                formData.append("deposit_amount", bookingData.deposit_amount);
+
+                formData.append("purpose", bookingData.purpose);
+
+                formData.append("gcash_reference", savedRef);
+                formData.append("payment_screenshot", savedFile);
+
+                try {
+
+                    let response = await fetch("/create_reservation", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    let data = await response.json();
+
+                    if (data.status === "success") {
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Booking Submitted",
+                            text: "Waiting for admin approval",
+                            confirmButtonColor: "#1e88e5"
+                        });
+
+                    } else {
+
+                        Swal.fire({
+                            icon: "error",
+                            title: "Booking Failed",
+                            text: data.message || "Something went wrong"
+                        });
+                    }
+
+                } catch (err) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Unable to submit reservation"
+                    });
+
+                    console.error(err);
+                }
             }
 
-            // 🔙 BACK BUTTON
             if (res.dismiss === Swal.DismissReason.cancel) {
                 step1();
             }
         });
     }
 
-    // =========================
-    // STEP 3: CONFIRMATION
-    // =========================
-    function step3() {
-        Swal.fire({
-            title: "Confirm Submission",
-            width: 420,
-            icon: "warning",
-
-            html: `
-            <div style="font-family:Arial;text-align:left;line-height:1.6">
-
-                <p style="margin-bottom:10px;">
-                    ⚠️ <b>Please review before submitting</b>
-                </p>
-
-                <div style="background:#fff3cd;padding:10px;border-radius:8px;">
-                    <p style="margin:0;">• Ensure reference number is correct</p>
-                    <p style="margin:0;">• Screenshot must be clear and valid</p>
-                    <p style="margin:0;">• Incorrect details will be rejected</p>
-                </div>
-
-                <hr>
-
-                <p><b>Reference:</b> ${savedRef}</p>
-
-            </div>
-            `,
-
-            showCancelButton: true,
-            confirmButtonText: "Yes, Submit",
-            cancelButtonText: "Back",
-            confirmButtonColor: "#28a745",
-            cancelButtonColor: "#1e88e5"
-
-        }).then((res) => {
-
-            if (res.isConfirmed) {
-
-                Swal.fire({
-                    icon: "success",
-                    title: "Payment Submitted",
-                    text: "Waiting for verification",
-                    confirmButtonColor: "#1e88e5"
-                });
-
-                // TODO: backend submit
-
-            }
-
-            // 🔙 BACK BUTTON
-            if (res.dismiss === Swal.DismissReason.cancel) {
-                step2();
-            }
-        });
-    }
-
-    // START FLOW
     step1();
 }
 
-
 /* FORMAT */
 function format(h) {
+
+    h = parseInt(h);
+
     let ampm = h >= 12 ? "PM" : "AM";
     let hour = h % 12 || 12;
+
     return hour + ":00 " + ampm;
 }
 
@@ -1290,6 +1361,7 @@ function closeBookingModal() {
 
 /* OUTSIDE CLICK */
 function handleOverlayClick(event) {
+
     let modal = document.querySelector(".modal-container.minimal");
 
     if (!modal.contains(event.target)) {
@@ -1298,7 +1370,6 @@ function handleOverlayClick(event) {
 }
 
 </script>
-
 
 </body>
 </html>

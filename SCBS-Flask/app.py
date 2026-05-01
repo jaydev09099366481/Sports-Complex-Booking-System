@@ -10,6 +10,7 @@ from fetch_inquiries import fetch_inquiry
 from fetch_categories import fetch_categories
 from fetch_facility import fetch_facility
 from fetch_reservations import fetch_reservations
+from create_reservation import create_reservation
 
 # ======================
 # BASE DIRECTORY
@@ -27,6 +28,7 @@ app.register_blueprint(fetch_inquiry)
 app.register_blueprint(fetch_categories)
 app.register_blueprint(fetch_facility)
 app.register_blueprint(fetch_reservations)
+app.register_blueprint(create_reservation)
 # ======================
 # DATABASE CONNECTION
 # ======================

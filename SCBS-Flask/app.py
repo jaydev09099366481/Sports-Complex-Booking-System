@@ -639,8 +639,10 @@ def dashboard():
     cur.execute("SELECT IFNULL(SUM(total_amount), 0) FROM reservations WHERE status = 'Approved'")
     total_sales = cur.fetchone()[0]
 
-    today_iso   = datetime.now().strftime("%Y-%m-%d")
-    today_label = datetime.now().strftime("%B %-d, %Y")
+    today = datetime.now()
+
+    today_iso = today.strftime("%Y-%m-%d")
+    today_label = f"{today:%B} {today.day}, {today:%Y}"
 
     cur.execute("""
         SELECT

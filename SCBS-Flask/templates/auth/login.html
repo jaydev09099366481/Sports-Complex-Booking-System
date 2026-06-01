@@ -253,7 +253,14 @@
 <div class="footer">© 2026 Sports Complex Booking System</div>
 
 <script>
-/* ── TOGGLE PASSWORD ── */
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
+
+/* =======================
+   TOGGLE PASSWORD VISIBILITY
+======================= */
 function togglePassword(inputId, iconSpan) {
     const input = document.getElementById(inputId);
     const icon  = iconSpan.querySelector("i");
@@ -266,7 +273,9 @@ function togglePassword(inputId, iconSpan) {
     }
 }
 
-/* ── TOGGLE FORMS ── */
+/* =======================
+   TOGGLE FORMS
+======================= */
 function showLogin() {
     document.getElementById("loginForm").style.display  = "block";
     document.getElementById("signupForm").style.display = "none";
@@ -281,7 +290,9 @@ function showSignup() {
     document.getElementById("loginBtn").classList.remove("active");
 }
 
-/* ── FORGOT PASSWORD ── */
+/* =======================
+   FORGOT PASSWORD MODAL
+======================= */
 document.getElementById("forgotPasswordLink").addEventListener("click", function(e) {
     e.preventDefault();
     Swal.fire({
@@ -332,7 +343,9 @@ document.getElementById("forgotPasswordLink").addEventListener("click", function
     });
 });
 
-/* ── FIELD VALIDATION HELPERS ── */
+/* =======================
+   SIGNUP VALIDATION + STRENGTH METER
+======================= */
 function setField(inputId, iconId, msgId, valid, message) {
     const input = document.getElementById(inputId);
     const icon  = iconId  ? document.getElementById(iconId)  : null;
@@ -486,7 +499,7 @@ function checkSignupReady() {
 }
 
 /* ── SIGNUP SUBMIT ── */
-document.getElementById("signupForm").addEventListener("submit", function(e) {
+signupForm.addEventListener("submit", function(e) {
     e.preventDefault();
     const btn          = document.getElementById("signupSubmit");
     const originalText = btn.innerHTML;
@@ -551,7 +564,7 @@ document.getElementById("signupForm").addEventListener("submit", function(e) {
 });
 
 /* ── LOGIN SUBMIT ── */
-document.getElementById("loginForm").addEventListener("submit", function(e) {
+loginForm.addEventListener("submit", function(e) {
     e.preventDefault();
     const btn          = document.getElementById("loginSubmit");
     const originalText = btn.innerHTML;
@@ -597,13 +610,26 @@ document.getElementById("loginForm").addEventListener("submit", function(e) {
     });
 });
 
-/* ── AUTO LOAD FORM ── */
-window.addEventListener("load", function() {
+/* =======================
+   AUTO LOAD FORM
+======================= */
+window.onload = function() {
     const params = new URLSearchParams(window.location.search);
-    params.get("form") === "signup" ? showSignup() : showLogin();
-});
+    const form = params.get("form");
 
-/* ── TERMS AND CONDITIONS ── */
+    if (form === "signup") {
+        showSignup();
+    } else {
+        showLogin();
+    }
+};
+
+</script>
+
+<script>
+/* =======================
+   TERMS AND CONDITIONS
+======================= */
 document.getElementById("openTerms").addEventListener("click", function(e) {
     e.preventDefault();
     Swal.fire({
@@ -633,6 +659,82 @@ document.getElementById("openTerms").addEventListener("click", function(e) {
         confirmButtonColor: "#329D9C"
     });
 });
+</script>
+
+
+<script>
+/* =======================
+   CHATBOT TOGGLE
+======================= */
+let chatbotOpen = false;
+
+function toggleChatbot() {
+    const popup   = document.getElementById("chatbotPopup");
+    const fabIcon = document.getElementById("fabIcon");
+    chatbotOpen = !chatbotOpen;
+    if (chatbotOpen) {
+        popup.style.display = "flex";
+        setTimeout(() => popup.classList.add("open"), 10);
+        fabIcon.className = "fas fa-times";
+        const _ci = document.getElementById("popupChatInput");
+        if (_ci) _ci.focus();
+    } else {
+        popup.classList.remove("open");
+        fabIcon.className = "fas fa-robot";
+        setTimeout(() => { popup.style.display = "none"; }, 300);
+    }
+}
+
+/* FIX: guard prevents TypeError when chatbot HTML is commented out */
+const _chatInput = document.getElementById("popupChatInput");
+if (_chatInput) {
+    _chatInput.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") sendPopupMessage();
+    });
+}
+
+async function sendPopupMessage() {
+    const input   = document.getElementById("popupChatInput");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chat = document.getElementById("popupChatMessages");
+
+    const userDiv = document.createElement("div");
+    userDiv.className = "user-msg";
+    userDiv.textContent = message;
+    chat.appendChild(userDiv);
+    input.value = "";
+    chat.scrollTop = chat.scrollHeight;
+
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "typing-indicator";
+    typingDiv.innerHTML = "<span></span><span></span><span></span>";
+    chat.appendChild(typingDiv);
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+        const data = await response.json();
+        chat.removeChild(typingDiv);
+        const botDiv = document.createElement("div");
+        botDiv.className = "bot-msg";
+        botDiv.innerHTML = data.response.replace(/\n/g, "<br>");
+        chat.appendChild(botDiv);
+    } catch {
+        chat.removeChild(typingDiv);
+        const errDiv = document.createElement("div");
+        errDiv.className = "bot-msg";
+        errDiv.textContent = "Server error. Please try again later.";
+        chat.appendChild(errDiv);
+    }
+
+    chat.scrollTop = chat.scrollHeight;
+}
 </script>
 
 </body>

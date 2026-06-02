@@ -515,7 +515,7 @@ signupForm.addEventListener("submit", function(e) {
     if (calcStrength(password) < 2) { Swal.fire("Weak Password","Please use a stronger password.","warning"); return; }
     if (!terms) { Swal.fire("Error","You must agree to Terms and Conditions!","error"); return; }
 
-    btn.innerHTML = <span class="spinner"></span> Processing...;
+    btn.innerHTML = `<span class="spinner"></span> Processing...`;
     btn.classList.add("loading-btn");
     btn.disabled = true;
 
@@ -573,7 +573,7 @@ loginForm.addEventListener("submit", function(e) {
 
     if (!email || !password) { Swal.fire("Error","Please fill in all fields!","error"); return; }
 
-    btn.innerHTML = <span class="spinner"></span> Logging in...;
+    btn.innerHTML = `<span class="spinner"></span> Logging in...`;
     btn.classList.add("loading-btn");
     btn.disabled = true;
 

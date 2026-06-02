@@ -46,27 +46,13 @@ body {
 
 /* ── SIDEBAR ── */
 .sidebar {
-    width: var(--sidebar-w);
-    min-height: 100vh;
-    background: var(--bg-surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0;
-    z-index: 100;
+    width: var(--sidebar-w); min-height: 100vh; background: var(--bg-surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; z-index: 100;
 }
-.sidebar-logo {
-    padding: 22px 20px 18px;
-    border-bottom: 1px solid var(--border);
-}
+.sidebar-logo { padding: 22px 20px 18px; border-bottom: 1px solid var(--border); }
 .logo-badge { display: inline-flex; align-items: center; gap: 10px; }
-.logo-icon {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-}
+.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .logo-icon svg { width: 18px; height: 18px; fill: #080c10; }
 .logo-text { font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-1); line-height: 1.2; }
 .logo-sub  { font-size: 10px; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
@@ -74,13 +60,9 @@ body {
 .nav { flex: 1; padding: 14px 0; overflow-y: auto; }
 .nav-label { padding: 14px 20px 6px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); font-weight: 500; }
 .nav a {
-    display: flex; align-items: center; gap: 11px;
-    padding: 9px 20px;
-    color: var(--text-2);
-    text-decoration: none;
-    font-size: 13.5px; font-weight: 400;
-    border-left: 2px solid transparent;
-    transition: all 0.18s;
+    display: flex; align-items: center; gap: 11px; padding: 9px 20px;
+    color: var(--text-2); text-decoration: none; font-size: 13.5px; font-weight: 400;
+    border-left: 2px solid transparent; transition: all 0.18s;
 }
 .nav a i { width: 16px; text-align: center; font-size: 13px; }
 .nav a:hover { color: var(--text-1); background: rgba(255,255,255,0.04); }
@@ -88,10 +70,7 @@ body {
 .nav a.danger { color: var(--danger); }
 .nav a.danger:hover { background: rgba(248,113,113,0.08); }
 
-.sidebar-footer {
-    padding: 16px 20px; border-top: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
-}
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
 .sidebar-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
 .sidebar-user-name { font-size: 13px; font-weight: 500; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-user-role { font-size: 11px; color: var(--text-3); }
@@ -101,15 +80,14 @@ body {
     text-transform: uppercase; letter-spacing: 0.05em;
 }
 .role-pill.admin { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,224,196,0.2); }
-.role-pill.staff { background: rgba(251,191,36,0.1); color: var(--warning); border: 1px solid rgba(251,191,36,0.2); }
+.role-pill.staff  { background: rgba(251,191,36,0.1); color: var(--warning); border: 1px solid rgba(251,191,36,0.2); }
 
 /* ── MAIN ── */
 .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
 /* ── TOPBAR ── */
 .topbar {
-    background: var(--bg-surface);
-    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface); border-bottom: 1px solid var(--border);
     padding: 0 28px; height: 56px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 50;
@@ -130,19 +108,17 @@ body {
 }
 .stat-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
 .stat-icon { width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 17px; }
-.stat-icon.teal   { background: rgba(0,224,196,0.12);  color: var(--accent); }
-.stat-icon.blue   { background: rgba(59,130,246,0.12); color: var(--accent2); }
-.stat-icon.amber  { background: rgba(251,191,36,0.12); color: var(--warning); }
-.stat-icon.red    { background: rgba(248,113,113,0.12);color: var(--danger); }
-.stat-icon.green  { background: rgba(52,211,153,0.12); color: var(--success); }
-.stat-icon.purple { background: rgba(167,139,250,0.12);color: #a78bfa; }
+.stat-icon.teal   { background: rgba(0,224,196,0.12);   color: var(--accent); }
+.stat-icon.blue   { background: rgba(59,130,246,0.12);  color: var(--accent2); }
+.stat-icon.amber  { background: rgba(251,191,36,0.12);  color: var(--warning); }
+.stat-icon.red    { background: rgba(248,113,113,0.12); color: var(--danger); }
+.stat-icon.green  { background: rgba(52,211,153,0.12);  color: var(--success); }
+.stat-icon.purple { background: rgba(167,139,250,0.12); color: #a78bfa; }
 .stat-val { font-size: 22px; font-weight: 600; line-height: 1; color: var(--text-1); font-family: var(--font-mono); }
 .stat-lbl { font-size: 12px; color: var(--text-3); margin-top: 4px; }
 
 /* ── MONITORING CARD ── */
-.monitor-card {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
-}
+.monitor-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 .monitor-header {
     padding: 16px 20px; border-bottom: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
@@ -160,10 +136,7 @@ body {
     width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
     animation: pulse-glow 1.5s infinite;
 }
-@keyframes pulse-glow {
-    0%,100% { opacity:1; transform:scale(1); }
-    50%      { opacity:0.4; transform:scale(0.75); }
-}
+@keyframes pulse-glow { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.75);} }
 
 .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
@@ -229,33 +202,8 @@ tbody tr:hover { background: rgba(255,255,255,0.025); }
 /* Status badges */
 .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 100px; font-size: 11px; font-weight: 500; white-space: nowrap; }
 .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-
-.badge-ongoing {
-    background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,224,196,0.2);
-}
+.badge-ongoing  { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,224,196,0.2); }
 .badge-ongoing::before { background: var(--accent); animation: pulse-glow 1.5s infinite; }
-
-.badge-ended {
-    background: rgba(248,113,113,0.1); color: var(--danger); border: 1px solid rgba(248,113,113,0.2);
-}
-.badge-ended::before { background: var(--danger); }
-
-/* Countdown */
-.countdown-cell { display: flex; flex-direction: column; gap: 6px; }
-.countdown-timer {
-    font-family: var(--font-mono); font-size: 15px; font-weight: 700; letter-spacing: 1px;
-    transition: color 0.5s;
-}
-.timer-normal   { color: var(--text-1); }
-.timer-warning  { color: var(--warning); }
-.timer-critical { color: var(--danger); animation: blink-bar 1s infinite; }
-@keyframes blink-bar { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-
-.bar-wrap { width: 110px; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
-.bar { height: 100%; border-radius: 2px; transition: width 1s linear, background 0.5s; }
-.bar-green  { background: var(--accent); }
-.bar-yellow { background: var(--warning); }
-.bar-red    { background: var(--danger); animation: blink-bar 1s infinite; }
 
 /* Action buttons */
 .action-group { display: flex; gap: 7px; }
@@ -355,9 +303,7 @@ tbody tr:hover { background: rgba(255,255,255,0.025); }
         <div class="topbar-title">
             <span class="breadcrumb">Admin /</span> Dashboard
         </div>
-        <div class="topbar-right">
-            <!-- reserved -->
-        </div>
+        <div class="topbar-right"></div>
     </header>
 
     <div class="content">
@@ -433,145 +379,134 @@ tbody tr:hover { background: rgba(255,255,255,0.025); }
                 </div>
             </div>
 
-            {% if active_reservations %}
-            <table>
+            <table id="monitorTable">
                 <thead>
                     <tr>
                         <th>Facility</th>
                         <th>User</th>
                         <th>Time Slot</th>
                         <th>Status</th>
-                        <th>Time Remaining</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="liveMonitoringTable">
-                    {% for r in active_reservations %}
-                    <tr
-                        data-id="{{ r.id }}"
-                        data-start="{{ r.iso_start }}"
-                        data-end="{{ r.iso_end }}"
-                        data-facility="{{ r.facility_name }}"
-                        data-user="{{ r.user_name }}"
-                    >
-                        <!-- FACILITY -->
-                        <td>
-                            <div class="facility-cell">
-                                {% if r.facility_image_url %}
-                                    <img src="{{ r.facility_image_url }}"
-                                         alt="{{ r.facility_name }}"
-                                         class="facility-img">
-                                {% else %}
-                                    <div class="facility-icon-box">
-                                        {% set cn = (r.category_name or '')|lower %}
-                                        {% if 'court' in cn or 'basketball' in cn or 'tennis' in cn %}
-                                            <i class="fas fa-basketball-ball"></i>
-                                        {% elif 'pool' in cn or 'swim' in cn %}
-                                            <i class="fas fa-swimming-pool"></i>
-                                        {% elif 'gym' in cn or 'fitness' in cn %}
-                                            <i class="fas fa-dumbbell"></i>
-                                        {% elif 'field' in cn or 'football' in cn or 'soccer' in cn %}
-                                            <i class="fas fa-futbol"></i>
-                                        {% else %}
-                                            <i class="fas fa-building"></i>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                                <div>
-                                    <div class="facility-name">{{ r.facility_name }}</div>
-                                    <div class="facility-cat">
-                                        <i class="fas fa-layer-group" style="font-size:10px;margin-right:3px;"></i>
-                                        {{ r.category_name or 'Uncategorized' }}
+                    {% if active_reservations %}
+                        {% for r in active_reservations %}
+                        <tr
+                            data-id="{{ r.id }}"
+                            data-end="{{ r.iso_end }}"
+                            data-facility="{{ r.facility_name }}"
+                            data-user="{{ r.user_name }}"
+                        >
+                            <!-- FACILITY -->
+                            <td>
+                                <div class="facility-cell">
+                                    {% if r.facility_image_url %}
+                                        <img src="{{ r.facility_image_url }}"
+                                             alt="{{ r.facility_name }}"
+                                             class="facility-img">
+                                    {% else %}
+                                        <div class="facility-icon-box">
+                                            {% set cn = (r.category_name or '')|lower %}
+                                            {% if 'court' in cn or 'basketball' in cn or 'tennis' in cn %}
+                                                <i class="fas fa-basketball-ball"></i>
+                                            {% elif 'pool' in cn or 'swim' in cn %}
+                                                <i class="fas fa-swimming-pool"></i>
+                                            {% elif 'gym' in cn or 'fitness' in cn %}
+                                                <i class="fas fa-dumbbell"></i>
+                                            {% elif 'field' in cn or 'football' in cn or 'soccer' in cn %}
+                                                <i class="fas fa-futbol"></i>
+                                            {% else %}
+                                                <i class="fas fa-building"></i>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="facility-name">{{ r.facility_name }}</div>
+                                        <div class="facility-cat">
+                                            <i class="fas fa-layer-group" style="font-size:10px;margin-right:3px;"></i>
+                                            {{ r.category_name or 'Uncategorized' }}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
+                            </td>
 
-                        <!-- USER -->
-                        <td>
-                            <div class="user-cell">
-                                {% if r.user_profile_image_url %}
-                                    <img src="{{ r.user_profile_image_url }}"
-                                         alt="{{ r.user_name }}"
-                                         class="user-img">
-                                {% else %}
-                                    <div class="user-initials {{ ['av-a','av-b','av-c','av-d','av-e'][loop.index0 % 5] }}">
-                                        {{ (r.user_name or 'NA')[:2]|upper }}
-                                    </div>
-                                {% endif %}
-                                <span style="color:var(--text-1);">{{ r.user_name or 'Unknown' }}</span>
-                            </div>
-                        </td>
-
-                        <!-- TIME SLOT -->
-                        <td>
-                            <div class="time-range">
-                                <i class="fas fa-clock" style="color:var(--text-3);font-size:11px;"></i>
-                                <span class="time-val">{{ r.start_time }}</span>
-                                <span class="time-sep">→</span>
-                                <span class="time-val end-time-label">{{ r.end_time }}</span>
-                            </div>
-                            <div class="time-date">
-                                <i class="fas fa-calendar-day" style="font-size:10px;margin-right:3px;"></i>
-                                {{ r.booking_date }}
-                            </div>
-                        </td>
-
-                        <!-- STATUS -->
-                        <td>
-                            <span class="badge badge-ongoing" id="status-{{ r.id }}">
-                                Ongoing
-                            </span>
-                        </td>
-
-                        <!-- COUNTDOWN -->
-                        <td>
-                            <div class="countdown-cell">
-                                <div class="countdown-timer timer-normal" id="timer-{{ r.id }}">
-                                    Calculating…
+                            <!-- USER -->
+                            <td>
+                                <div class="user-cell">
+                                    {% if r.user_profile_image_url %}
+                                        <img src="{{ r.user_profile_image_url }}"
+                                             alt="{{ r.user_name }}"
+                                             class="user-img">
+                                    {% else %}
+                                        <div class="user-initials {{ ['av-a','av-b','av-c','av-d','av-e'][loop.index0 % 5] }}">
+                                            {{ (r.user_name or 'NA')[:2]|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <span style="color:var(--text-1);">{{ r.user_name or 'Unknown' }}</span>
                                 </div>
-                                <div class="bar-wrap">
-                                    <div class="bar bar-green" id="bar-{{ r.id }}" style="width:100%"></div>
-                                </div>
-                            </div>
-                        </td>
+                            </td>
 
-                        <!-- ACTIONS -->
-                        <td>
-                            <div class="action-group">
-                                <button class="btn-extend" id="ext-{{ r.id }}"
-                                    onclick="openExtendModal({{ r.id }}, '{{ r.end_time }}', '{{ r.booking_date }}')">
-                                    <i class="fas fa-plus-circle"></i> Extend
-                                </button>
-                                <button class="btn-end" id="end-{{ r.id }}"
-                                    onclick="confirmEnd({{ r.id }}, '{{ r.facility_name }}', '{{ r.user_name }}')">
-                                    <i class="fas fa-stop-circle"></i> End
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                            <!-- TIME SLOT -->
+                            <td>
+                                <div class="time-range">
+                                    <i class="fas fa-clock" style="color:var(--text-3);font-size:11px;"></i>
+                                    <span class="time-val">{{ r.start_time }}</span>
+                                    <span class="time-sep">→</span>
+                                    <span class="time-val end-time-label">{{ r.end_time }}</span>
+                                </div>
+                                <div class="time-date">
+                                    <i class="fas fa-calendar-day" style="font-size:10px;margin-right:3px;"></i>
+                                    {{ r.booking_date }}
+                                </div>
+                            </td>
+
+                            <!-- STATUS -->
+                            <td>
+                                <span class="badge badge-ongoing" id="status-{{ r.id }}">
+                                    Ongoing
+                                </span>
+                            </td>
+
+                            <!-- ACTIONS -->
+                            <td>
+                                <div class="action-group">
+                                    <button class="btn-extend" id="ext-{{ r.id }}"
+                                        onclick="openExtendModal({{ r.id }}, '{{ r.end_time }}', '{{ r.booking_date }}')">
+                                        <i class="fas fa-plus-circle"></i> Extend
+                                    </button>
+                                    <button class="btn-end" id="end-{{ r.id }}"
+                                        onclick="confirmEnd({{ r.id }}, '{{ r.facility_name }}', '{{ r.user_name }}')">
+                                        <i class="fas fa-stop-circle"></i> End
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr id="emptyRow">
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <h3>No Active Sessions</h3>
+                                    <p>Approved bookings currently in progress will appear here.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
 
             <div class="monitor-footer">
                 <div style="display:flex;align-items:center;gap:6px;">
                     <i class="fas fa-circle" style="color:var(--accent);font-size:7px;animation:pulse-glow 1.5s infinite;"></i>
-                    <span>
+                    <span id="activeCount">
                         <strong>{{ active_reservations|length }}</strong>
                         active session{{ 's' if active_reservations|length != 1 else '' }} in progress
                     </span>
                 </div>
                 <span>Auto-refresh in <strong id="countdown60">60</strong>s</span>
             </div>
-
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <h3>No Active Sessions</h3>
-                <p>Approved bookings currently in progress will appear here.</p>
-            </div>
-            {% endif %}
 
         </div><!-- /monitor-card -->
 
@@ -585,7 +520,7 @@ tbody tr:hover { background: rgba(255,255,255,0.025); }
 /* ── SEARCH ── */
 function searchTable() {
     const q    = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#liveMonitoringTable tr');
+    const rows = document.querySelectorAll('#liveMonitoringTable tr[data-id]');
     rows.forEach(row => {
         row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
     });
@@ -609,73 +544,75 @@ if (autoLabel) {
     }, 1000);
 }
 
-/* ── COUNTDOWN TIMERS ── */
-function updateTimers() {
-    const rows = document.querySelectorAll('#liveMonitoringTable tr[data-end]');
+/* ── AUTO-COMPLETE: check every 30s if any session's end time has passed ── */
+function checkExpiredSessions() {
     const now  = Date.now();
+    const rows = document.querySelectorAll('#liveMonitoringTable tr[data-end]');
 
     rows.forEach(row => {
-        const id       = row.dataset.id;
-        const timerEl  = document.getElementById('timer-'  + id);
-        const barEl    = document.getElementById('bar-'    + id);
-        const statusEl = document.getElementById('status-' + id);
-        const extBtn   = document.getElementById('ext-'    + id);
-        const endBtn   = document.getElementById('end-'    + id);
+        const endMs = new Date(row.dataset.end).getTime();
+        if (isNaN(endMs) || endMs > now) return;
 
-        if (!timerEl || !barEl) return;
+        const id = row.dataset.id;
 
-        const startMs  = new Date(row.dataset.start).getTime();
-        const endMs    = new Date(row.dataset.end).getTime();
+        // Already being processed — skip
+        if (row.dataset.completing === '1') return;
+        row.dataset.completing = '1';
 
-        if (isNaN(startMs) || isNaN(endMs)) {
-            timerEl.textContent = 'Invalid date';
-            timerEl.className   = 'countdown-timer timer-warning';
-            return;
-        }
-
-        const totalMs  = endMs - startMs;
-        const remainMs = endMs - now;
-
-        if (remainMs <= 0) {
-            timerEl.textContent = '00:00:00';
-            timerEl.className   = 'countdown-timer timer-critical';
-            barEl.style.width   = '0%';
-            barEl.className     = 'bar bar-red';
-            if (statusEl) {
-                statusEl.className = 'badge badge-ended';
-                statusEl.textContent = 'Ended';
+        // Call the backend to mark as Completed
+        fetch('/end_reservation', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ reservation_id: parseInt(id, 10) })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Remove the row from the table
+                removeRow(id);
+            } else {
+                // Reset flag so it retries next cycle
+                row.dataset.completing = '0';
             }
-            if (extBtn) extBtn.disabled = true;
-            if (endBtn) endBtn.disabled = true;
-            return;
-        }
-
-        const totalSec = Math.floor(remainMs / 1000);
-        const h = Math.floor(totalSec / 3600);
-        const m = Math.floor((totalSec % 3600) / 60);
-        const s = totalSec % 60;
-        timerEl.textContent =
-            String(h).padStart(2,'0') + ':' +
-            String(m).padStart(2,'0') + ':' +
-            String(s).padStart(2,'0');
-
-        const pct = Math.max(0, Math.min(100, (remainMs / totalMs) * 100));
-        barEl.style.width = pct + '%';
-
-        if (pct > 40) {
-            timerEl.className = 'countdown-timer timer-normal';
-            barEl.className   = 'bar bar-green';
-        } else if (pct > 15) {
-            timerEl.className = 'countdown-timer timer-warning';
-            barEl.className   = 'bar bar-yellow';
-        } else {
-            timerEl.className = 'countdown-timer timer-critical';
-            barEl.className   = 'bar bar-red';
-        }
+        })
+        .catch(() => {
+            row.dataset.completing = '0';
+        });
     });
 }
-updateTimers();
-setInterval(updateTimers, 1000);
+
+/* ── REMOVE ROW & update counter ── */
+function removeRow(id) {
+    const row = document.querySelector(`#liveMonitoringTable tr[data-id="${id}"]`);
+    if (row) row.remove();
+
+    const remaining = document.querySelectorAll('#liveMonitoringTable tr[data-id]').length;
+
+    // Show empty state if none left
+    if (remaining === 0) {
+        const tbody = document.getElementById('liveMonitoringTable');
+        tbody.innerHTML = `
+            <tr id="emptyRow">
+                <td colspan="5">
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No Active Sessions</h3>
+                        <p>Approved bookings currently in progress will appear here.</p>
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    // Update footer count
+    const countEl = document.getElementById('activeCount');
+    if (countEl) {
+        countEl.innerHTML = `<strong>${remaining}</strong> active session${remaining !== 1 ? 's' : ''} in progress`;
+    }
+}
+
+// Check immediately on load, then every 30 seconds
+checkExpiredSessions();
+setInterval(checkExpiredSessions, 30000);
 
 /* ── EXTEND SESSION ── */
 function openExtendModal(id, endTimeLabel, dateLabel) {
@@ -726,8 +663,7 @@ function openExtendModal(id, endTimeLabel, dateLabel) {
                     .ext-opt.selected {
                         border-color:rgba(0,224,196,0.4); background:rgba(0,224,196,0.12);
                         box-shadow:0 0 12px rgba(0,224,196,0.1);
-                    }
-                `;
+                    }`;
                 document.head.appendChild(s);
             }
             document.querySelectorAll('.ext-opt').forEach(opt => {
@@ -760,6 +696,7 @@ function openExtendModal(id, endTimeLabel, dateLabel) {
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
+                // Update the row's data-end so the auto-complete checker uses the new time
                 const row = document.querySelector(`tr[data-id="${id}"]`);
                 if (row && data.new_iso_end) {
                     row.dataset.end = data.new_iso_end;
@@ -788,7 +725,7 @@ function openExtendModal(id, endTimeLabel, dateLabel) {
     });
 }
 
-/* ── END SESSION ── */
+/* ── END SESSION (manual) ── */
 function confirmEnd(id, facilityName, userName) {
     Swal.fire({
         title: 'End Session?',
@@ -804,7 +741,7 @@ function confirmEnd(id, facilityName, userName) {
             </div>
             <p style="color:#f87171;font-size:12px;margin-top:14px;font-family:'DM Sans',sans-serif;">
                 <i class="fas fa-exclamation-triangle" style="margin-right:5px;"></i>
-                This action cannot be undone.
+                This will mark the session as Completed.
             </p>`,
         background: '#111820',
         color: '#e8f0f8',
@@ -830,17 +767,13 @@ function confirmEnd(id, facilityName, userName) {
         .then(r => r.json())
         .then(data => {
             if (data.status === 'success') {
-                const timerEl  = document.getElementById('timer-'  + id);
-                const barEl    = document.getElementById('bar-'    + id);
-                const statusEl = document.getElementById('status-' + id);
-                if (timerEl)  { timerEl.textContent = '00:00:00'; timerEl.className = 'countdown-timer timer-critical'; }
-                if (barEl)    { barEl.style.width = '0%'; barEl.className = 'bar bar-red'; }
-                if (statusEl) { statusEl.className = 'badge badge-ended'; statusEl.textContent = 'Ended'; }
+                removeRow(id);
                 Swal.fire({
-                    icon:'success', title:'Session Ended', text:data.message,
+                    icon:'success', title:'Session Completed',
+                    text: 'The session has been marked as Completed.',
                     background:'#111820', color:'#e8f0f8',
                     confirmButtonColor:'#00e0c4', timer:2000, showConfirmButton:false
-                }).then(() => location.reload());
+                });
             } else {
                 Swal.fire({ icon:'error', title:'Failed', text:data.message,
                     background:'#111820', color:'#e8f0f8', confirmButtonColor:'#00e0c4' });

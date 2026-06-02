@@ -61,6 +61,21 @@ email_service = EmailNotification(
 )
 
 # ======================
+# EMAIL HELPER — safe wrapper so email failures never crash a route
+# ======================
+def send_email_safe(recipient_email, subject, message_html):
+    """Send email without raising — logs failures silently."""
+    try:
+        email_service.send_email(
+            recipient_email=recipient_email,
+            subject=subject,
+            message_html=message_html,
+        )
+    except Exception as e:
+        print(f"[EMAIL] Failed to send to {recipient_email}: {e}")
+
+
+# ======================
 # RBAC CONFIGURATION
 # ======================
 ROLE_PERMISSIONS = {
@@ -116,7 +131,6 @@ def admin_template_vars():
 # ======================
 @app.errorhandler(403)
 def forbidden(e):
-    # Clear admin session so they can log in again cleanly
     session.pop('admin', None)
     session.pop('admin_role', None)
     session.pop('admin_name', None)
@@ -124,7 +138,7 @@ def forbidden(e):
 
 
 # ======================
-# EMAIL HELPER
+# EMAIL BUILDER
 # ======================
 def build_email(title, name, body_html):
     return f"""
@@ -346,7 +360,8 @@ def login():
                             (name, email, hashed_pw, "active"))
                 c.commit()
 
-                email_service.send_email(
+                # ── email is non-critical; never crash signup if it fails ──
+                send_email_safe(
                     recipient_email=email,
                     subject="Welcome to Sports Complex Booking System",
                     message_html=build_email(
@@ -383,41 +398,53 @@ def login():
                 status = user['status'] if 'status' in user.keys() else 'active'
 
                 if status == "inactive":
-                    email_service.send_email(
+                    send_email_safe(
                         recipient_email=email,
                         subject="Login Attempt Failed – Sports Complex",
-                        message_html=build_email(title="Login Attempt Failed", name=name, body_html="""
+                        message_html=build_email(
+                            title="Login Attempt Failed",
+                            name=name,
+                            body_html="""
                             <p style="color:#555;font-size:14px;line-height:1.6;">
                                 Your account is currently <strong style="color:#f59e0b;">Inactive</strong>.
                                 Please contact our support team to activate your account.
-                            </p>""")
+                            </p>"""
+                        )
                     )
                     return jsonify({"status": "error", "message": "This account is not active. Please contact support."})
 
                 if status == "banned":
-                    email_service.send_email(
+                    send_email_safe(
                         recipient_email=email,
                         subject="Login Attempt Blocked – Sports Complex",
-                        message_html=build_email(title="Login Attempt Blocked", name=name, body_html="""
+                        message_html=build_email(
+                            title="Login Attempt Blocked",
+                            name=name,
+                            body_html="""
                             <p style="color:#555;font-size:14px;line-height:1.6;">
                                 Your account has been <strong style="color:#e53e3e;">Banned</strong>.
                                 Please contact our support team for more information.
-                            </p>""")
+                            </p>"""
+                        )
                     )
                     return jsonify({"status": "error", "message": "Your account has been banned. Please contact support."})
 
                 if check_password_hash(user['password'], password):
                     session['user'] = user['email']
-                    email_service.send_email(
+                    send_email_safe(
                         recipient_email=email,
                         subject="Login Notification – Sports Complex",
-                        message_html=build_email(title="Login Notification", name=name, body_html="""
+                        message_html=build_email(
+                            title="Login Notification",
+                            name=name,
+                            body_html="""
                             <p style="color:#555;font-size:14px;line-height:1.6;">
                                 You have successfully logged in to your
                                 <strong>Sports Complex</strong> account.
-                            </p>""")
+                            </p>"""
+                        )
                     )
-                    return jsonify({"status": "success", "message": "Login successful"})
+                    return jsonify({"status": "success", "message": "Login successful", "redirect": "/"})
 
                 return jsonify({"status": "error", "message": "Invalid credentials"})
 
@@ -562,7 +589,7 @@ def admin_login():
     if request.method == 'POST':
         email         = request.form.get('email')
         password      = request.form.get('password')
-        selected_role = request.form.get('role', 'admin')   # 'admin' or 'staff'
+        selected_role = request.form.get('role', 'admin')
         is_ajax       = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         c = sqlite3.connect(db_path)
@@ -575,13 +602,11 @@ def admin_login():
         admin = cur.fetchone()
         c.close()
 
-        # Wrong email or wrong password
         if not admin or not check_password_hash(admin['password'], password):
             if is_ajax:
                 return jsonify({'error': 'Invalid credentials.'})
             return render_template('auth/admin-login.html', error='Invalid credentials.')
 
-        # Account exists but the selected tab doesn't match the account's actual role
         if admin['role'] != selected_role:
             if is_ajax:
                 return jsonify({'role_mismatch': True})
@@ -590,7 +615,6 @@ def admin_login():
                 error=f"This account is not registered as a {selected_role.capitalize()}."
             )
 
-        # Success — set session and redirect
         session['admin']      = admin['email']
         session['admin_role'] = admin['role']
         session['admin_name'] = admin['name']
@@ -599,13 +623,12 @@ def admin_login():
             return jsonify({'redirect': url_for('dashboard')})
         return redirect(url_for('dashboard'))
 
-    # Already logged in
     if 'admin' in session:
         return redirect(url_for('dashboard'))
 
     return render_template('auth/admin-login.html')
 
-    
+
 # ======================
 # ADMIN — DASHBOARD
 # ======================
@@ -904,7 +927,7 @@ def contact():
                    (name, email, message))
     conn.commit()
 
-    email_service.send_email(
+    send_email_safe(
         recipient_email=email,
         subject="We received your inquiry – Sports Complex",
         message_html=build_email(

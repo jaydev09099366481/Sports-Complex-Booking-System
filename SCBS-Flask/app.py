@@ -48,12 +48,12 @@ app.add_url_rule("/forgot-password", view_func=forgot_password, methods=["POST"]
 app.add_url_rule("/reset-password",  view_func=reset_password,  methods=["GET", "POST"])
 
 # ======================
-# DATABASE CONNECTION
+# DATABASE PATH
+# FIX: removed global conn/cursor — they caused 500s on Render if the DB
+#      path was wrong at startup, crashing every route before any request.
+#      Every route now opens its own short-lived connection.
 # ======================
 db_path = os.path.join(BASE_DIR, 'database.db')
-conn = sqlite3.connect(db_path, check_same_thread=False)
-conn.row_factory = sqlite3.Row
-cursor = conn.cursor()
 
 email_service = EmailNotification(
     sender_email="sportscomplexx1@gmail.com",
@@ -61,7 +61,7 @@ email_service = EmailNotification(
 )
 
 # ======================
-# EMAIL HELPER — safe wrapper so email failures never crash a route
+# EMAIL HELPER
 # ======================
 def send_email_safe(recipient_email, subject, message_html):
     """Send email without raising — logs failures silently."""
@@ -160,9 +160,15 @@ def build_email(title, name, body_html):
 
 # ======================
 # CREATE TABLES
+# FIX: init_db now opens and closes its own connection instead of relying
+#      on the old module-level conn/cursor.
 # ======================
 def init_db():
-    cursor.execute("""
+    c = sqlite3.connect(db_path)
+    c.row_factory = sqlite3.Row
+    cur = c.cursor()
+
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS reservations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         facility_id INTEGER NOT NULL,
@@ -184,7 +190,7 @@ def init_db():
     )
     """)
 
-    cursor.execute("""
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -199,7 +205,7 @@ def init_db():
     )
     """)
 
-    cursor.execute("""
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS inquiries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -212,7 +218,7 @@ def init_db():
     )
     """)
 
-    cursor.execute("""
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -222,7 +228,7 @@ def init_db():
     )
     """)
 
-    cursor.execute("""
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS facilities (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -237,7 +243,7 @@ def init_db():
     )
     """)
 
-    cursor.execute("""
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS history_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         action TEXT NOT NULL,
@@ -248,7 +254,8 @@ def init_db():
     )
     """)
 
-    conn.commit()
+    c.commit()
+    c.close()
 
 init_db()
 
@@ -360,7 +367,6 @@ def login():
                             (name, email, hashed_pw, "active"))
                 c.commit()
 
-                # ── email is non-critical; never crash signup if it fails ──
                 send_email_safe(
                     recipient_email=email,
                     subject="Welcome to Sports Complex Booking System",
@@ -662,8 +668,10 @@ def dashboard():
     cur.execute("SELECT IFNULL(SUM(total_amount), 0) FROM reservations WHERE status = 'Approved'")
     total_sales = cur.fetchone()[0]
 
-    today_iso   = datetime.now().strftime("%Y-%m-%d")
-    today_label = datetime.now().strftime("%B %-d, %Y")
+    today_iso = datetime.now().strftime("%Y-%m-%d")
+    # FIX: %-d is Linux-only and crashes on some Render containers; use .day instead
+    now = datetime.now()
+    today_label = f"{now.strftime('%B')} {now.day}, {now.year}"
 
     cur.execute("""
         SELECT
@@ -915,6 +923,7 @@ def cancel_booking(id):
 
 # ======================
 # CONTACT
+# FIX: was using the removed global cursor — now opens its own connection
 # ======================
 @app.route('/contact', methods=['POST'])
 def contact():
@@ -923,9 +932,14 @@ def contact():
     email   = data.get('email')
     message = data.get('message')
 
-    cursor.execute("INSERT INTO inquiries (name, email, message) VALUES (?, ?, ?)",
-                   (name, email, message))
-    conn.commit()
+    c = sqlite3.connect(db_path)
+    try:
+        cur = c.cursor()
+        cur.execute("INSERT INTO inquiries (name, email, message) VALUES (?, ?, ?)",
+                    (name, email, message))
+        c.commit()
+    finally:
+        c.close()
 
     send_email_safe(
         recipient_email=email,
